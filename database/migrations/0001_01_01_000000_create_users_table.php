@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('fullname');
             $table->string('address');
-            $table->integer('phone_number');
+            $table->string('phone_number');
             $table->string('image');
             $table->enum('role', ['admin', 'customer']);
             $table->rememberToken();

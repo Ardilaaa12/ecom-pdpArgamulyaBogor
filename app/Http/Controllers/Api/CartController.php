@@ -1,17 +1,21 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Models\Cart;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Resources\MasterResource;
 
-class UserController extends Controller
+class CartController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $cart = Cart::latest()->get();
+        return new MasterResource(true, 'List cart berhasil ditampilkan', $cart);
     }
 
     /**
@@ -59,6 +63,16 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $cart = Cart::find($id);
+
+        $userUsingCart = $cart->user()->exists(); 
+
+        if ($userUsingCart) {
+            return redirect()->back()->with('gagal', 'cart masih digunakan oleh user!');
+        }
+
+        $cart->delete();
+
+        return new MasterResource(true, 'Data cart berhasil dihapus', null);
     }
 }
