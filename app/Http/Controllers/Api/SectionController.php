@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Section;
-use App\Http\Resources\MasterResource;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Http\Resources\MasterResource;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 
@@ -21,7 +22,7 @@ class SectionController
     {
         //inisialisasi
         $validator = Validator::make($request->all(), [
-            'navbar_id'     => 'required',
+            'navbar_id'     => 'required|exists:navbars,id',
             'title'         => 'required',
             'description'   => 'required',
             'media'         => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
@@ -65,15 +66,14 @@ class SectionController
     {
         // validasi data
         $validator = Validator::make($request->all(), [
-            'navbar_id'     => 'required',
+            'navbar_id'     => 'required|exists:navbars,id',
             'title'         => 'required',
             'description'   => 'required',
-            'media'         => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'status'        => 'required|in:active,nonActive',
             'type'          => 'required',
         ]);
 
-        // jika validasi gagal
+        //jika validasi gagal
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
@@ -117,10 +117,8 @@ class SectionController
     {
         $data = Section::find($id);
         Storage::delete('public/sectionImage/'.basename($data->media));
-        $id->delete();
+        $data->delete();
 
         return new MasterResource(true, 'Section Behasil Dihapus!', null);
     }
 }
-
-// Test1
