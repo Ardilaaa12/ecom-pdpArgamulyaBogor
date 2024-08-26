@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+use Illuminate\Database\Eloquent\Attribute;
+
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
@@ -64,5 +66,12 @@ class User extends Authenticatable
 
     public function likeItem() {
         return $this->hasMany(likeItem::class);
+    }
+
+    protected function image(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($image) => url('/storage/user' . $image),
+        );
     }
 }
