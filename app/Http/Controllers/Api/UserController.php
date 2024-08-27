@@ -123,7 +123,7 @@ class UserController extends Controller
             $image->storeAs('public/users', $image->hashName());
 
             // delete old image
-            Storage::delete('public/users/' . basename($user->image));
+            Storage::delete('public/users/' .basename($user->image));
 
             // upload user with new image 
             $user->update([
@@ -159,7 +159,7 @@ class UserController extends Controller
     {
         $user = User::find($id);
         // delete image
-        Storage::delete('public/users' . basename($user->image));
+        Storage::delete('public/users' .basename($user->image));
         // delete user
         $user->delete();
 

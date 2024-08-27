@@ -19,3 +19,4 @@ Route::apiResource('/rekening', App\Http\Controllers\Api\RekeningController::cla
 Route::apiResource('/navbar', App\Http\Controllers\Api\NavbarController::class);
 Route::apiResource('/section', App\Http\Controllers\Api\SectionController::class);
 Route::apiResource('/content', App\Http\Controllers\Api\ContentController::class);
+Route::apiResource('/review', App\Http\Controllers\Api\ReviewController::class);

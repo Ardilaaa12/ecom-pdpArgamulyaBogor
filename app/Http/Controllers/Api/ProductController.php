@@ -134,8 +134,8 @@ class ProductController extends Controller
      */
     public function destroy(string $id)
     {
-        $product = Product::find($id)->with(['category']);
-        Storage::delete('public/product' . basename($product->photoProduct));
+        $product = Product::with(['category'])->find($id);
+        Storage::delete('public/product' . basename($product->photo_product));
         $product->delete();
 
         return new MasterResource(true, 'Data user berhasil dihapus', null);
