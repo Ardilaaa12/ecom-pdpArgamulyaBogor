@@ -54,7 +54,7 @@ class User extends Authenticatable
     protected function image(): Attribute
     {
         return Attribute::make(
-            get: fn ($image) => url('/storage/users/' . $image),
+            get: fn ($image) => url('/storage/user/' . $image),
         );
     }
 
