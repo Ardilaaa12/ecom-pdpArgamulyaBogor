@@ -105,7 +105,7 @@ class ProductController extends Controller
             $photoProduct = $request->file('photo_product');
             $photoProduct->storeAs('public/product', $photoProduct->hashName());
             // delete old image 
-            Storage::delete('public/product/' . basename($product->photoProduct));
+            Storage::delete('public/product/' . basename($product->photo_product));
             // upload product with new image 
             $product->update([
                 'category_id' => $request->category_id,
