@@ -20,4 +20,8 @@ class Payment extends Model
     public function order() {
         return $this->belongsTo(Order::class);
     }
+
+    public function rekening() {
+        return $this->hasOne(Rekening::class);
+    }
 }

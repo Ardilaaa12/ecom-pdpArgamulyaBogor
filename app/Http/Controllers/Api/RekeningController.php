@@ -38,7 +38,7 @@ class RekeningController extends Controller
 
         // upload payment_master_image
         $paymentImage = $request->file('payment_master_image');
-        $paymentImage->storeAs('public/paymentImage', $paymentImage->hashName());
+        $paymentImage->storeAs('public/rekeningImage', $paymentImage->hashName());
 
         // tambah data
         $data = Rekening::create([
@@ -78,10 +78,10 @@ class RekeningController extends Controller
         if ($request->hasFile('payment_master_image')) {
             //upload payment image
             $paymentImage = $request->file('payment_master_image');
-            $paymentImage->storeAs('public/paymentImage', $paymentImage->hashName());
+            $paymentImage->storeAs('public/rekeningImage', $paymentImage->hashName());
 
             // hapus paymentImage sebelumnya
-            Storage::delete('public/paymentImage/'.basename($post->paymentImage));
+            Storage::delete('public/rekeningImage/'.basename($post->payment_master_image));
 
             $post->update([
                 'payment_method'        => $request->payment_method,
@@ -101,7 +101,7 @@ class RekeningController extends Controller
     public function destroy($id)
     {
         $id = Rekening::find($id);
-        Storage::delete('public/paymentImage/'.basename($id->paymentImage));
+        Storage::delete('public/rekeningImage/'.basename($id->payment_master_image));
         $id->delete();
 
         return new MasterResource(true, 'Data Rekening Master Berhasil dihapus!', null);

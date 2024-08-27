@@ -18,3 +18,4 @@ Route::apiResource('/likes', App\Http\Controllers\Api\LikeController::class);
 Route::apiResource('/likes-item', App\Http\Controllers\Api\LikeItemController::class);
 Route::apiResource('/orders', App\Http\Controllers\Api\OrderController::class);
 Route::apiResource('/rekening', App\Http\Controllers\Api\RekeningController::class);
+Route::apiResource('/payment', App\Http\Controllers\Api\PaymentController::class);

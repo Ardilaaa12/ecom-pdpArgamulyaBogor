@@ -83,11 +83,8 @@ class NavbarController extends Controller
     }
 
     public function destroy($id){
-        $id = Navbar::find($id);
-        $id->delete();
-
-        $data = Navbar::latest()->get();
-
-        return new MasterResource(true, 'Navbar Berhasil Dihapus!', $data);
+        $data = Navbar::find($id);
+        $data->delete();
+        return new MasterResource(true, 'Navbar Berhasil Dihapus!', null);
     }
 }

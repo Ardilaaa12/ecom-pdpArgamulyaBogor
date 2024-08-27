@@ -54,7 +54,7 @@ class UserController extends Controller
 
         // upload image
         $image = $request->file('image');
-        $image->storeAs('public/users', $image->hashName());
+        $path = $image->storeAs('public/users', $image->hashName());
 
         // create users
         $user = User::create([
@@ -73,7 +73,14 @@ class UserController extends Controller
             Like::create(['user_id' => $user->id]);
         }
 
-        return new MasterResource(true, 'Data user berhasil ditambahkan', $user);
+        if($user) {
+            return new MasterResource(true, 'Data user berhasil ditambahkan', $user);
+        } else {
+            // hapus gambar jika penyimpanan data gagal 
+            Storage::delete($path);
+            return response()->json(['error' => 'Gagal menyimpan data user'], 500);
+        }
+
     }
 
     /**
