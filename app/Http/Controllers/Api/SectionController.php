@@ -32,7 +32,7 @@ class SectionController
 
         // validasi gagal
         if ($validator->fails()) {
-            return response()->josn($validator->error(), 422);
+            return response()->json($validator->errors(), 422);
         }
 
         // upload media
@@ -45,8 +45,8 @@ class SectionController
             'title'         => $request->title,
             'description'   => $request->description,
             'media'         => $media->hashName(),
-            'status'         => $request->status,
-            'type'         => $request->type,
+            'status'        => $request->status,
+            'type'          => $request->type,
         ]);
 
         return new MasterResource(true, 'Section berhasil ditambahkan!', $data);
@@ -64,7 +64,6 @@ class SectionController
 
     public function update(Request $request, $id)
     {
-        // validasi data
         $validator = Validator::make($request->all(), [
             'navbar_id'     => 'required|exists:navbars,id',
             'title'         => 'required',
@@ -88,31 +87,30 @@ class SectionController
             $media->storeAs('public/sectionImage', $media->hashName());
 
             // hapus media sebelumnya
-            Storage::delete('public/sectionImage/'.basename($data->image));
+            Storage::delete('public/sectionImage/'.basename($data->media));
 
             $data->update([
-                'navbar_id'     => $request->navbar_id,
-                'title'         => $request->title,
-                'description'   => $request->description,
-                'media'         => $media->hashName(),
-                'status'        => $request->status,
-                'type'          => $request->type,
+                'navbar_id'         => $request->navbar_id,
+                'title'             => $request->title,
+                'description'       => $request->description,
+                'media'             => $media->hashName(),
+                'status'            => $request->status,
+                'type'              => $request->type,
 
             ]);
         } else {
             $data->update([
                 'navbar_id'     => $request->navbar_id,
-                'title'         => $request->title,
-                'description'   => $request->description,
-                'status'        => $request->status,
-                'type'          => $request->type,
+                'title'          => $request->title,
+                'description'    => $request->description,
+                'status'         => $request->status,
+                'type'           => $request->type,
             ]);
         }
 
         // mengembalikan data
         return new MasterResource(true, 'Section Berhasil Diubah!', $data);
     }
-
     public function destroy($id)
     {
         $data = Section::find($id);

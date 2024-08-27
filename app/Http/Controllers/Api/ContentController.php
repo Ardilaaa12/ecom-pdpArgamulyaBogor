@@ -31,11 +31,11 @@ class ContentController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->error(), 422);
+            return response()->json($validator->errors(), 422);
         }
 
         $media = $request->file('media');
-        $media->storeAs('public/ContentImage', $media->hashName());
+        $media->storeAs('public/contentImage', $media->hashName());
 
         $data = Content::create([
             'section_id'    => $request->section_id,
@@ -77,10 +77,10 @@ class ContentController extends Controller
         if ($request->hasFile('media')) {
             // upload media
             $media = $request->file('media');
-            $media->storeAs('public/ContentImage', $media->hashName());
+            $media->storeAs('public/contentImage', $media->hashName());
 
             // hapus media sebelumnya
-            Storage::delete('public/ContentImage/'.basename($data->image));
+            Storage::delete('public/contentImage/'.basename($data->media));
 
             $data->update([
                 'section_id'        => $request->section_id,
@@ -108,7 +108,7 @@ class ContentController extends Controller
     public function destroy($id)
     {
         $data = Content::find($id);
-        Storage::delete('public/ContentImage/'.basename($data->media));
+        Storage::delete('public/contentImage/'.basename($data->media));
         $data->delete();
 
         return new MasterResource(true, 'Content berhasil Dihapus!', null);
