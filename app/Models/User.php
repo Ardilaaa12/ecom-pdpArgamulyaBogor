@@ -3,11 +3,10 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-
-use Illuminate\Database\Eloquent\Attribute;
 
 class User extends Authenticatable
 {
@@ -52,6 +51,13 @@ class User extends Authenticatable
         ];
     }
 
+    protected function image(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($image) => url('/storage/users/' . $image),
+        );
+    }
+
     public function order() {
         return $this->hasMany(Order::class);
     }
@@ -73,5 +79,13 @@ class User extends Authenticatable
         return Attribute::make(
             get: fn ($image) => url('/storage/user' . $image),
         );
+    }
+
+    public function cart() {
+        return $this->hasMany(Cart::class);
+    }
+
+    public function like() {
+        return $this->hasMany(Like::class);
     }
 }
