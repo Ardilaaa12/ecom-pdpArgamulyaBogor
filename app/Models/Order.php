@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use SebastianBergmann\CodeUnit\FunctionUnit;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Order extends Model
 {
@@ -17,6 +18,14 @@ class Order extends Model
         'total_amount',
         'status',
     ];
+
+    public static function boot() {
+        parent::boot();
+
+        static::creating(function ($order){ 
+            $order->no_ref_order = 'REF-' . strtoupper(Str::random(3));
+        });
+    }
 
     public function user() {
         return $this->belongsTo(User::class);
