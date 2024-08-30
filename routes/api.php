@@ -3,6 +3,7 @@
 use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -22,3 +23,10 @@ Route::apiResource('/navbar', App\Http\Controllers\Api\NavbarController::class);
 Route::apiResource('/section', App\Http\Controllers\Api\SectionController::class);
 Route::apiResource('/content', App\Http\Controllers\Api\ContentController::class);
 Route::apiResource('/review', App\Http\Controllers\Api\ReviewController::class);
+
+// route untuk register, login dan logout
+Route::prefix('account')->group(function () {
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
+});
