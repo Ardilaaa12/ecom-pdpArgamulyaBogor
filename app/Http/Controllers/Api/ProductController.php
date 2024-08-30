@@ -50,10 +50,13 @@ class ProductController extends Controller
             return response()->json($validator->errors(), 422);
         }
     
-        // Simpan file gambar
+        // Simpan file gambar ke dalam folder 'public/product'
         $photoProduct = $request->file('photo_product');
-        $photoProductName = $photoProduct->hashName();
-        $path = $photoProduct->storeAs('public/product', $photoProductName);
+        $photoProductName = $photoProduct->hashName(); // Generate nama file unik
+        $photoProduct->storeAs('public/product', $photoProductName);
+    
+        // Generate URL untuk gambar menggunakan helper asset()
+        $photoProductUrl = asset('storage/product/' . $photoProductName);
     
         // Simpan data produk ke database
         $product = Product::create([
@@ -62,7 +65,7 @@ class ProductController extends Controller
             'description' => $request->description,
             'price' => number_format($request->price),
             'stock' => $request->stock,
-            'photo_product' => $photoProductName,
+            'photo_product' => $photoProductUrl, // Simpan URL gambar
         ]);
     
         // Cek jika penyimpanan data berhasil
@@ -70,10 +73,12 @@ class ProductController extends Controller
             return new MasterResource(true, 'Data product berhasil ditambahkan', $product);
         } else {
             // Hapus file gambar jika penyimpanan data gagal
-            Storage::delete($path);
+            Storage::delete('public/product/' . $photoProductName);
             return response()->json(['error' => 'Gagal menyimpan data produk'], 500);
         }
-    }    
+    }
+    
+ 
 
     /**
      * Display the specified resource.

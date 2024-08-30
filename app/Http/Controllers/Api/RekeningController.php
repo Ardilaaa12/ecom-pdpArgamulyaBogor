@@ -36,18 +36,25 @@ class RekeningController extends Controller
             // 422 adalah code yang akan dimunculkan dengan keterangan errornya
         }
 
-        // upload payment_master_image
-        $paymentImage = $request->file('payment_master_image');
-        $paymentImage->storeAs('public/rekeningImage', $paymentImage->hashName());
+        $rekeningImage = $request->file('payment_master_image');
+        $rekeningImageName = $rekeningImage->hashName();
+        $rekeningImage->storeAs('public/rekeningImage', $rekeningImageName);
+
+        $rekeningImageUrl = asset('storage/rekeningImage/' . $rekeningImageName);
 
         // tambah data
         $data = Rekening::create([
             'payment_method'        => $request->payment_method,
-            'payment_master_image'  => $paymentImage->hashName(),
+            'payment_master_image'  => $rekeningImageUrl,
         ]);
 
-        // mengembalikan data
-        return new MasterResource(true, 'Data Rekening Master Berhasil Ditambahkan!', $data);
+        if($data) {
+            return new MasterResource(true, 'Data user berhasil ditambahkan', $data);
+        } else {
+         // Hapus file gambar jika penyimpanan data gagal
+         Storage::delete('public/rekeningImage/' . $rekeningImageName);
+         return response()->json(['error' => 'Gagal menyimpan data payment'], 500);
+        }
     }
 
     public function show($id)
