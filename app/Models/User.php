@@ -55,12 +55,6 @@ class User extends Authenticatable
         ];
     }
 
-    protected function image(): Attribute
-    {
-        return Attribute::make(
-            get: fn ($image) => url('/storage/user/' . $image),
-        );
-    }
 
     public function order() {
         return $this->hasMany(Order::class);

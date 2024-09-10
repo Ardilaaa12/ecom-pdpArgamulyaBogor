@@ -4,19 +4,18 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\MasterResource;
-use App\Models\Order;
+use App\Models\OrderDetail;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 
-class OrderController extends Controller
+class OrderDetailController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $order = Order::with(['user'])->get();
-        return new MasterResource(true, 'List data yang ada di order', $order);
+        $OrderDetail = OrderDetail::latest()->get();
+        return new MasterResource(true, "List data yang ada di Order Detail", $OrderDetail);
     }
 
     /**
@@ -32,10 +31,7 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-        // $validator = Validator::make($request->all(), [
-        //     'user_id'=> 'required|exists:users,id',
-        //     ''
-        // ]);
+        //
     }
 
     /**
