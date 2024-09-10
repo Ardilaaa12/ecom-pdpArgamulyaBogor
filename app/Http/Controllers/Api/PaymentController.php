@@ -46,22 +46,25 @@ class PaymentController extends Controller
         }
 
         $paymentImage = $request->file('payment_image');
-        $path = $paymentImage->storeAs('public/paymentImage', $paymentImage->hashName());
+        $paymentImageName = $paymentImage->hashName();
+        $paymentImage->storeAs('public/paymentImage', $paymentImageName);
+
+        $paymentImageUrl = asset('storage/paymentImage/' . $paymentImageName);
 
         $payment = Payment::create([
             'order_id' => $request->order_id,
             'payment_master_id' => $request->payment_master_id,
             'payment_date' => $request->payment_date,
             'payment_amount' => $request->payment_amount,
-            'payment_image' => $paymentImage->hashName(),
+            'payment_image' => $paymentImageUrl,
         ]);
 
         if($payment) {
             return new MasterResource(true, 'Data user berhasil ditambahkan', $payment);
         } else {
-            // hapus gambar jika penyimpanan data gagal 
-            Storage::delete($path);
-            return response()->json(['error' => 'Gagal menyimpan data user'], 500);
+         // Hapus file gambar jika penyimpanan data gagal
+         Storage::delete('public/paymentImage/' . $paymentImageName);
+         return response()->json(['error' => 'Gagal menyimpan data payment'], 500);
         }
     }
 

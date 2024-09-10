@@ -36,6 +36,7 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+        // Validasi input
         $validator = Validator::make($request->all(), [
             'username' => 'required',
             'email' => 'required|email|unique:users,email',
@@ -47,24 +48,27 @@ class UserController extends Controller
             'role' => 'required|in:admin,customer',
         ]);
 
-        if($validator->fails()) {
+        if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
-
-        // upload image
+        // Upload image
         $image = $request->file('image');
-        $path = $image->storeAs('public/users', $image->hashName());
+        $imageName = $image->hashName(); // Generate nama file unik
+        $image->storeAs('public/user', $imageName);
 
-        // create users
+        // Generate URL untuk gambar menggunakan Storage::url()
+        $imageUrl = asset('/storage/user/' . $imageName); // URL yang benar
+
+        // Create user
         $user = User::create([
             'username' => $request->username,
             'email' => $request->email,
-            'password' => Hash::make($request['password']),
+            'password' => Hash::make($request->password),
             'fullname' => $request->fullname,
             'address' => $request->address,
             'phone_number' => $request->phone_number,
-            'image' => $image->hashName(),
+            'image' => $imageUrl, // Simpan URL gambar
             'role' => $request->role,
         ]);
 
@@ -73,15 +77,17 @@ class UserController extends Controller
             Like::create(['user_id' => $user->id]);
         }
 
-        if($user) {
+        if ($user) {
             return new MasterResource(true, 'Data user berhasil ditambahkan', $user);
         } else {
-            // hapus gambar jika penyimpanan data gagal 
-            Storage::delete($path);
+            // Hapus gambar jika penyimpanan data gagal
+            Storage::delete('public/user/' . $imageName);
             return response()->json(['error' => 'Gagal menyimpan data user'], 500);
         }
+    } 
+    
 
-    }
+    
 
     /**
      * Display the specified resource.
@@ -127,10 +133,10 @@ class UserController extends Controller
         if($request->hasFile('image')) {
             // upload image 
             $image = $request->file('image');
-            $image->storeAs('public/users', $image->hashName());
+            $image->storeAs('public/user', $image->hashName());
 
             // delete old image
-            Storage::delete('public/users/' .basename($user->image));
+            Storage::delete('public/user/' .basename($user->image));
 
             // upload user with new image 
             $user->update([
@@ -166,7 +172,7 @@ class UserController extends Controller
     {
         $user = User::find($id);
         // delete image
-        Storage::delete('public/users' .basename($user->image));
+        Storage::delete('public/user/' .basename($user->image));
         // delete user
         $user->delete();
 
