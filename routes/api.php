@@ -16,7 +16,6 @@ Route::apiResource('/carts', App\Http\Controllers\Api\CartController::class);
 Route::apiResource('/carts-item', App\Http\Controllers\Api\CartItemController::class);
 Route::apiResource('/likes', App\Http\Controllers\Api\LikeController::class);
 Route::apiResource('/likes-item', App\Http\Controllers\Api\LikeItemController::class);
-Route::apiResource('/orders', App\Http\Controllers\Api\OrderController::class);
 Route::apiResource('/rekening', App\Http\Controllers\Api\RekeningController::class);
 Route::apiResource('/payment', App\Http\Controllers\Api\PaymentController::class);
 Route::apiResource('/navbar', App\Http\Controllers\Api\NavbarController::class);
@@ -29,4 +28,8 @@ Route::prefix('account')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
     Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
+});
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::apiResource('/orders', App\Http\Controllers\Api\OrderController::class);
 });

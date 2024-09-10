@@ -32,10 +32,12 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'user_id'=> 'required|exists:users,id',
-            ''
+        $order = Order::create([
+            'user_id' => auth()->user()->id,  // Mendapatkan ID user yang sedang login
+            'product_id' => $validated['product_id'],
+            'quantity' => $validated['quantity'],
         ]);
+        
     }
 
     /**
