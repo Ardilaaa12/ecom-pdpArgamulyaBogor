@@ -47,9 +47,9 @@ class PaymentController extends Controller
 
         $paymentImage = $request->file('payment_image');
         $paymentImageName = $paymentImage->hashName();
-        $paymentImage->storeAs('public/paymentImage', $paymentImageName);
+        $paymentImage->storeAs('public/payment', $paymentImageName);
 
-        $paymentImageUrl = asset('storage/paymentImage/' . $paymentImageName);
+        $paymentImageUrl = asset('storage/payment/' . $paymentImageName);
 
         $payment = Payment::create([
             'order_id' => $request->order_id,
@@ -63,7 +63,7 @@ class PaymentController extends Controller
             return new MasterResource(true, 'Data user berhasil ditambahkan', $payment);
         } else {
          // Hapus file gambar jika penyimpanan data gagal
-         Storage::delete('public/paymentImage/' . $paymentImageName);
+         Storage::delete('public/payment/' . $paymentImageName);
          return response()->json(['error' => 'Gagal menyimpan data payment'], 500);
         }
     }
@@ -106,16 +106,20 @@ class PaymentController extends Controller
         if($request->hasFile('payment_image')) {
             // upload image
             $paymentImage = $request->file('payment_image');
-            $paymentImage->storeAs('public/paymentImage', $paymentImage->hashName());
+            $paymentImageName = $paymentImage->hashName();
+            $paymentImage->storeAs('public/payment', $paymentImageName);
+    
+            $paymentImageUrl = asset('storage/payment/' . $paymentImageName);
+    
             // delete old image
-            Storage::delete('public/paymentImage/' . basename($payment->payment_image));
+            Storage::delete('public/payment/' . basename($payment->payment_image));
             // upload payment with new image 
             $payment->update([
                 'order_id' => $request->order_id,
                 'payment_master_id' => $request->payment_master_id,
                 'payment_date' => $request->payment_date,
                 'payment_amount' => $request->payment_amount,
-                'payment_image' => $paymentImage->hashName(),
+                'payment_image' => $paymentImageUrl,
             ]);
         } else {
             $payment->update([
@@ -136,7 +140,7 @@ class PaymentController extends Controller
     public function destroy($id)
     {
         $payment = Payment::find($id);
-        Storage::delete('public/paymentImage/' . basename($payment->payment_image));
+        Storage::delete('public/payment/' . basename($payment->payment_image));
         $payment->delete();
 
         return new MasterResource(true, 'data payment berhasil di hapus', null);

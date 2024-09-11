@@ -120,7 +120,11 @@ class ProductController extends Controller
         if ($request->hasFile('photo_product')) {
             // upload image 
             $photoProduct = $request->file('photo_product');
-            $photoProduct->storeAs('public/product', $photoProduct->hashName());
+            $photoProductName = $photoProduct->hashName();
+            $photoProduct->storeAs('public/product', $photoProductName);
+        
+            $photoProductUrl = asset('storage/product/' . $photoProductName);
+
             // delete old image 
             Storage::delete('public/product/' . basename($product->photo_product));
             // upload product with new image 
@@ -130,7 +134,7 @@ class ProductController extends Controller
                 'description' => $request->description,
                 'price' => number_format($request->price),
                 'stock' => $request->stock,
-                'photo_product' => $photoProduct->hashName(),
+                'photo_product' => $photoProductUrl,
             ]);
         } else {
             // without image

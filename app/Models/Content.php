@@ -21,11 +21,4 @@ class Content extends Model
     public function section() {
         return $this->belongsTo(Section::class);
     }
-
-    protected function image(): Attribute
-    {
-        return Attribute::make(
-            get: fn ($image) => url('/storage/content' . $image),
-        );
-    }
 }

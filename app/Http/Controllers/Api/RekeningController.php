@@ -38,9 +38,9 @@ class RekeningController extends Controller
 
         $rekeningImage = $request->file('payment_master_image');
         $rekeningImageName = $rekeningImage->hashName();
-        $rekeningImage->storeAs('public/rekeningImage', $rekeningImageName);
+        $rekeningImage->storeAs('public/rekening', $rekeningImageName);
 
-        $rekeningImageUrl = asset('storage/rekeningImage/' . $rekeningImageName);
+        $rekeningImageUrl = asset('storage/rekening/' . $rekeningImageName);
 
         // tambah data
         $data = Rekening::create([
@@ -52,7 +52,7 @@ class RekeningController extends Controller
             return new MasterResource(true, 'Data user berhasil ditambahkan', $data);
         } else {
          // Hapus file gambar jika penyimpanan data gagal
-         Storage::delete('public/rekeningImage/' . $rekeningImageName);
+         Storage::delete('public/rekening/' . $rekeningImageName);
          return response()->json(['error' => 'Gagal menyimpan data payment'], 500);
         }
     }
@@ -84,15 +84,18 @@ class RekeningController extends Controller
         // cek apakah paymnet image diisi atau tidak
         if ($request->hasFile('payment_master_image')) {
             //upload payment image
-            $paymentImage = $request->file('payment_master_image');
-            $paymentImage->storeAs('public/rekeningImage', $paymentImage->hashName());
-
+            $rekeningImage = $request->file('payment_master_image');
+            $rekeningImageName = $rekeningImage->hashName();
+            $rekeningImage->storeAs('public/rekening', $rekeningImageName);
+    
+            $rekeningImageUrl = asset('storage/rekening/' . $rekeningImageName);
+            
             // hapus paymentImage sebelumnya
-            Storage::delete('public/rekeningImage/'.basename($post->payment_master_image));
+            Storage::delete('public/rekening/'.basename($post->payment_master_image));
 
             $post->update([
                 'payment_method'        => $request->payment_method,
-                'payment_master_image'  => $paymentImage->hashName(),
+                'payment_master_image'  => $rekeningImageUrl,
             ]);
         } else {
             // update tanpa paymentImage
@@ -108,7 +111,7 @@ class RekeningController extends Controller
     public function destroy($id)
     {
         $id = Rekening::find($id);
-        Storage::delete('public/rekeningImage/'.basename($id->payment_master_image));
+        Storage::delete('public/rekening/'.basename($id->payment_master_image));
         $id->delete();
 
         return new MasterResource(true, 'Data Rekening Master Berhasil dihapus!', null);

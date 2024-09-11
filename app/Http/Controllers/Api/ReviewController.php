@@ -36,15 +36,19 @@ class ReviewController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        // kirim gambar
+        // Upload image
         $image = $request->file('image');
-        $image->storeAs('public/reviewImage', $image->hashName());
+        $imageName = $image->hashName(); // Generate nama file unik
+        $image->storeAs('public/review', $imageName);
+
+        // Generate URL untuk gambar menggunakan Storage::url()
+        $imageUrl = asset('/storage/review/' . $imageName); // URL yang benar
 
         // tambah data
         $data = Review::create([
             'user_id'       => $request->user_id,
             'product_id'    => $request->product_id,
-            'image'         => $image->hashName(),
+            'image'         => $imageUrl,
             'description'   => $request->description,
             'review_date'   => Carbon::now('Asia/Jakarta')->format('Y-m-d H:i:s'), //agar format waktu sama
             'amount_like'   => $request->amount_like ?? 0,
@@ -80,18 +84,22 @@ class ReviewController extends Controller
         $data = Review::find($id);
 
         if ($request->hasFile('image')) {
-            // upload image
+            // Upload image
             $image = $request->file('image');
-            $image->storeAs('public/reviewImage', $image->hashName());
+            $imageName = $image->hashName(); // Generate nama file unik
+            $image->storeAs('public/review', $imageName);
+
+            // Generate URL untuk gambar menggunakan Storage::url()
+            $imageUrl = asset('/storage/review/' . $imageName); // URL yang benar
 
             // hapus image sebelumnya
-            Storage::delete('public/reviewImage/'.basename($data->image));
+            Storage::delete('public/review/'.basename($data->image));
 
             // update data
             $data->update([
                 'user_id'       => $request->user_id,
                 'product_id'    => $request->product_id,
-                'image'         => $image->hashName(),
+                'image'         => $imageUrl,
                 'description'   => $request->description,
                 'rate'          => $request->rate,
             ]);
@@ -110,7 +118,7 @@ class ReviewController extends Controller
    public function destroy($id)
    {
         $data = Review::find($id);
-        Storage::delete('public/reviewImage/'.basename($data->image));
+        Storage::delete('public/review/'.basename($data->image));
         $data->delete();
 
         return new MasterResource(true, 'Review Berhasil dihapus!', null);

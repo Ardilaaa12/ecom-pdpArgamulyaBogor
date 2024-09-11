@@ -22,12 +22,4 @@ class Section extends Model
     public function content() {
         return $this->hasMany(Content::class);
     }
-
-    protected function image(): Attribute
-    {
-        return Attribute::make(
-            get: fn ($image) => url('/storage/section' . $image),
-        );
-    }
-
 }

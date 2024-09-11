@@ -35,16 +35,20 @@ class SectionController
             return response()->json($validator->errors(), 422);
         }
 
-        // upload media
-        $media = $request->file('media');
-        $media->storeAs('public/sectionImage', $media->hashName());
+        // Upload image
+        $image = $request->file('media');
+        $imageName = $image->hashName(); // Generate nama file unik
+        $image->storeAs('public/section', $imageName);
+
+        // Generate URL untuk gambar menggunakan Storage::url()
+        $imageUrl = asset('/storage/section/' . $imageName); // URL yang benar
 
         // tambah data
         $data = Section::create([
             'navbar_id'     => $request->navbar_id,
             'title'         => $request->title,
             'description'   => $request->description,
-            'media'         => $media->hashName(),
+            'media'         => $imageUrl,
             'status'        => $request->status,
             'type'          => $request->type,
         ]);
@@ -82,18 +86,22 @@ class SectionController
 
         // cek media diisi atau tidak
         if ($request->hasFile('media')) {
-            // upload media
-            $media = $request->file('media');
-            $media->storeAs('public/sectionImage', $media->hashName());
+            // Upload image
+            $image = $request->file('media');
+            $imageName = $image->hashName(); // Generate nama file unik
+            $image->storeAs('public/section', $imageName);
+
+            // Generate URL untuk gambar menggunakan Storage::url()
+            $imageUrl = asset('/storage/section/' . $imageName); // URL yang benar
 
             // hapus media sebelumnya
-            Storage::delete('public/sectionImage/'.basename($data->media));
+            Storage::delete('public/section/'.basename($data->media));
 
             $data->update([
                 'navbar_id'         => $request->navbar_id,
                 'title'             => $request->title,
                 'description'       => $request->description,
-                'media'             => $media->hashName(),
+                'media'             => $imageUrl,
                 'status'            => $request->status,
                 'type'              => $request->type,
 
@@ -114,7 +122,7 @@ class SectionController
     public function destroy($id)
     {
         $data = Section::find($id);
-        Storage::delete('public/sectionImage/'.basename($data->media));
+        Storage::delete('public/section/'.basename($data->media));
         $data->delete();
 
         return new MasterResource(true, 'Section Behasil Dihapus!', null);

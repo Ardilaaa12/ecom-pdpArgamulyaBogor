@@ -34,14 +34,19 @@ class ContentController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        $media = $request->file('media');
-        $media->storeAs('public/contentImage', $media->hashName());
+        // Upload image
+        $image = $request->file('media');
+        $imageName = $image->hashName(); // Generate nama file unik
+        $image->storeAs('public/content', $imageName);
+
+        // Generate URL untuk gambar menggunakan Storage::url()
+        $imageUrl = asset('/storage/content/' . $imageName); // URL yang benar
 
         $data = Content::create([
             'section_id'    => $request->section_id,
             'title'         => $request->title,
             'description'   => $request->description,
-            'media'         => $media->hashName(),
+            'media'         => $imageUrl,
             'status'        => $request->status,
             'type'          => $request->type,
         ]);
@@ -75,18 +80,22 @@ class ContentController extends Controller
 
         // cek media diisi atau tidak
         if ($request->hasFile('media')) {
-            // upload media
-            $media = $request->file('media');
-            $media->storeAs('public/contentImage', $media->hashName());
+            // Upload image
+            $image = $request->file('media');
+            $imageName = $image->hashName(); // Generate nama file unik
+            $image->storeAs('public/content', $imageName);
+
+            // Generate URL untuk gambar menggunakan Storage::url()
+            $imageUrl = asset('/storage/content/' . $imageName); // URL yang benar
 
             // hapus media sebelumnya
-            Storage::delete('public/contentImage/'.basename($data->media));
+            Storage::delete('public/content/'.basename($data->media));
 
             $data->update([
                 'section_id'        => $request->section_id,
                 'title'             => $request->title,
                 'description'       => $request->description,
-                'media'             => $media->hashName(),
+                'media'             => $media,
                 'status'            => $request->status,
                 'type'              => $request->type,
 
@@ -108,7 +117,7 @@ class ContentController extends Controller
     public function destroy($id)
     {
         $data = Content::find($id);
-        Storage::delete('public/contentImage/'.basename($data->media));
+        Storage::delete('public/content/'.basename($data->media));
         $data->delete();
 
         return new MasterResource(true, 'Content berhasil Dihapus!', null);

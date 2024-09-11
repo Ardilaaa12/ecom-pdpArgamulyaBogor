@@ -26,11 +26,4 @@ class Review extends Model
     public function product() {
         return $this->belongsTo(Product::class);
     }
-
-    protected function image(): Attribute
-    {
-        return Attribute::make(
-            get: fn ($image) => url('/storage/review/' . $image),
-        );
-    }
 }

@@ -133,7 +133,10 @@ class UserController extends Controller
         if($request->hasFile('image')) {
             // upload image 
             $image = $request->file('image');
-            $image->storeAs('public/user', $image->hashName());
+            $imageName = $image->hashName();
+            $image->storeAs('public/user', $imageName);
+    
+            $imageUrl = asset('/storage/user/' . $imageName); // URL yang benar
 
             // delete old image
             Storage::delete('public/user/' .basename($user->image));
@@ -146,7 +149,7 @@ class UserController extends Controller
                 'fullname' => $request->fullname,
                 'address' => $request->address,
                 'phone_number' => $request->phone_number,
-                'image' => $image->hashName(),
+                'image' => $imageUrl,
                 'role' => $request->role,
             ]);
         } else {
