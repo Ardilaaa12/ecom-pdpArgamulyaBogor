@@ -63,7 +63,7 @@ class ContentController extends Controller
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'section_id'     => 'required|exists:sections,id',
+            'section_id'    => 'required|exists:sections,id',
             'title'         => 'required',
             'description'   => 'required',
             'status'        => 'required|in:active,nonActive',
@@ -95,7 +95,7 @@ class ContentController extends Controller
                 'section_id'        => $request->section_id,
                 'title'             => $request->title,
                 'description'       => $request->description,
-                'media'             => $media,
+                'media'             => $imageUrl,
                 'status'            => $request->status,
                 'type'              => $request->type,
 
