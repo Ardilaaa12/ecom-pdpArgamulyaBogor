@@ -28,6 +28,7 @@ Route::apiResource('/review', App\Http\Controllers\Api\ReviewController::class);
 // route untuk register, login dan logout
 Route::prefix('account')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/verify', [AuthController::class, 'verify'])->name('verify');
     Route::post('/login', [AuthController::class, 'login']);
     Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 });

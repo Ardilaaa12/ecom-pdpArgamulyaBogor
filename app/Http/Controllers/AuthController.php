@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Http\Resources\MasterResource;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use App\Http\Resources\MasterResource;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
@@ -26,41 +28,53 @@ class AuthController extends Controller
             return response()->json($validator->errors(), 400);
         }
 
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $path = $image->storeAs('public/users', $image->hashName());
+        $verificationToken = Str::random(6);
 
-            // Buat pengguna baru
-            $user = User::create([
-                'username' => $request->username,
-                'email' => $request->email,
-                'password' => Hash::make($request['password']),
-                'fullname' => $request->fullname ?? '',
-                'address' => $request->address ?? '',
-                'phone_number' => $request->phone_number ?? '',
-                'image' => $image->hashName(),
-                'role' => 'customer',
-            ]);
+        // Buat pengguna baru
+        $user = User::create([
+            'username' => $request->username,
+            'email' => $request->email,
+            'password' => Hash::make($request['password']),
+            'role' => 'customer',
+            'verification_code' => $verificationToken,
+        ]);
 
-        } else {
-
-            $user = User::create([
-                'username' => $request->username,
-                'email' => $request->email,
-                'password' => Hash::make($request['password']),
-                'fullname' => $request->fullname ?? '',
-                'address' => $request->address ?? '',
-                'phone_number' => $request->phone_number ?? '',
-                'image' => $request->image ?? '',
-                'role' => 'customer' ?? '',
-            ]);
-
-        }
-
-
+        // kirim email verifikasi
+        Mail::send('emails.verification', ['token' => $verificationToken], function ($message) use ($user) {
+            $message->to($user->email);
+            $message->subject('Email Verification');
+        });
+    
         // Mengembalikan respons
-        return new MasterResource(true, 'Data user berhasil ditambahkan', $user);   //memunculkan data dengan bantuan MasterResource
+        return new MasterResource(true, 'Registrasi Anda berhasil. Silahkan check email anda untuk mendapatkan kode verifikasi!', $user);   //memunculkan data dengan bantuan MasterResource
         // return response()->json(['message' => 'Berhasil Register!'], 201); //hanya memunculkan data berhasil
+        // return response()->json(['message' => 'Registration successful. Please check your email for the verification token.']);
+    }
+
+    // verify
+    public function verify(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'verification_code' => 'required|string|size:6',
+        ]);
+    
+        $user = User::where('email', $request->email)->first();
+    
+        if (!$user) {
+            return response()->json(['message' => 'User not found.'], 404);
+        }
+    
+        if ($user->verification_code !== $request->verification_code) {
+            return response()->json(['message' => 'Invalid verification token.'], 400);
+        }
+    
+        // Set user as verified
+        $user->is_verified = true;
+        $user->verification_code = null; // Clear the verification token
+        $user->save();
+    
+        return response()->json(['message' => 'Email verified successfully.']);
     }
 
     // login

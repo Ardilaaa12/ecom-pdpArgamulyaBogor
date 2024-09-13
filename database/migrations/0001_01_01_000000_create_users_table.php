@@ -22,6 +22,8 @@ return new class extends Migration
             $table->string('phone_number')->nullable();
             $table->string('image')->nullable();
             $table->enum('role', ['admin', 'customer']);
+            $table->string('verification_code')->nullable();
+            $table->boolean('is_verified')->default(false);
             $table->rememberToken();
             $table->timestamps();
         });

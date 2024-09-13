@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\MasterResource;
+use Illuminate\Support\Facades\DB;
 // untuk format waktu
 use Carbon\Carbon;
 
@@ -15,8 +16,7 @@ class ReviewController extends Controller
 {
    public function index()
    {
-        $data = Review::latest()->paginate(5);
-
+        $data = Review::with('user')->get();    
         return new MasterResource(true, 'List Data Review', $data);
    }
 
