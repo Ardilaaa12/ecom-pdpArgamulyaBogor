@@ -16,7 +16,6 @@ Route::apiResource('/carts', App\Http\Controllers\Api\CartController::class);
 Route::apiResource('/carts-item', App\Http\Controllers\Api\CartItemController::class);
 Route::apiResource('/likes', App\Http\Controllers\Api\LikeController::class);
 Route::apiResource('/likes-item', App\Http\Controllers\Api\LikeItemController::class);
-// Route::apiResource('/orders', App\Http\Controllers\Api\OrderController::class);
 Route::apiResource('/orderDetail', App\Http\Controllers\Api\OrderDetailController::class);
 Route::apiResource('/rekening', App\Http\Controllers\Api\RekeningController::class);
 Route::apiResource('/payment', App\Http\Controllers\Api\PaymentController::class);
@@ -24,6 +23,7 @@ Route::apiResource('/navbar', App\Http\Controllers\Api\NavbarController::class);
 Route::apiResource('/section', App\Http\Controllers\Api\SectionController::class);
 Route::apiResource('/content', App\Http\Controllers\Api\ContentController::class);
 Route::apiResource('/review', App\Http\Controllers\Api\ReviewController::class);
+Route::apiResource('/shipping', App\Http\Controllers\Api\ShippingControllers::class);
 
 // route untuk register, login dan logout
 Route::prefix('account')->group(function () {
@@ -31,8 +31,4 @@ Route::prefix('account')->group(function () {
     Route::post('/verify', [AuthController::class, 'verify'])->name('verify');
     Route::post('/login', [AuthController::class, 'login']);
     Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
-});
-
-Route::middleware(['auth:sanctum'])->group(function () {
-    Route::apiResource('/orders', App\Http\Controllers\Api\OrderController::class);
 });
