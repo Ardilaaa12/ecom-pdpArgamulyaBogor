@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('username');
             $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
+            // $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('fullname')->nullable();
             $table->string('address')->nullable();
@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('image')->nullable();
             $table->enum('role', ['admin', 'customer']);
             $table->string('verification_code')->nullable();
-            $table->boolean('is_verified')->default(false);
+            $table->boolean('is_verified')->default(false);    
             $table->rememberToken();
             $table->timestamps();
         });
