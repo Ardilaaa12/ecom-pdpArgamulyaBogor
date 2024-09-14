@@ -111,25 +111,37 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        // find post by ID
+        $user = User::findOrFail($id);
+
+        // ambil email lama
+        $oldEmail = $user->email;
+
         $validator = Validator::make($request->all(), [
             'username' => 'required',
-            'email' => 'required|email|unique:users,email',
+            'email' => 'required|email', //validasi apakah bentunya email
             'password' => 'required|min:8',
-            'fullname' => 'required|string',
-            'address' => 'required',
-            'phone_number' => 'required|numeric',
-            'image' => 'required|image|mimes:jpeg,png,jpg,svg,gif|max:2048',
-            'role' => 'required|in:admin,customer',
+            'fullname' => 'nullable|string',
+            'address' => 'nullable',
+            'phone_number' => 'nullable|numeric',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,svg,gif|max:2048',
         ]);
+
+        if ($request->email === $oldEmail) {
+
+            $email = $request->email;
+            
+        } else {
+            $validator = Validator::make($request->all(), [
+                'email' => 'required|email|unique:users,email', // Validasi untuk email unik
+            ]);
+            $email = $request->email;
+        }
 
         if($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
-        // find post by ID
-        $user = User::find($id);
-
-        // check if image is not empty 
         if($request->hasFile('image')) {
             // upload image 
             $image = $request->file('image');
@@ -144,13 +156,13 @@ class UserController extends Controller
             // upload user with new image 
             $user->update([
                 'username' => $request->username,
-                'email' => $request->email,
+                'email' => $email,
                 'password' => Hash::make($request['password']),
                 'fullname' => $request->fullname,
                 'address' => $request->address,
                 'phone_number' => $request->phone_number,
                 'image' => $imageUrl,
-                'role' => $request->role,
+                'role' => $user->role,
             ]);
         } else {
             // update user without image 
@@ -161,7 +173,7 @@ class UserController extends Controller
                 'fullname' => $request->fullname,
                 'address' => $request->address,
                 'phone_number' => $request->phone_number,
-                'role' => $request->role,
+                'role' => $user->role,
             ]);
         }
 

@@ -40,15 +40,13 @@ class AuthController extends Controller
         ]);
 
         // kirim email verifikasi
-        Mail::send('emails.verification', ['token' => $verificationToken], function ($message) use ($user) {
+        Mail::send('emails.verification', ['token' => $verificationToken, 'username' => $user->username], function ($message) use ($user) {
             $message->to($user->email);
             $message->subject('Email Verification');
         });
     
         // Mengembalikan respons
         return new MasterResource(true, 'Registrasi Anda berhasil. Silahkan check email anda untuk mendapatkan kode verifikasi!', $user);   //memunculkan data dengan bantuan MasterResource
-        // return response()->json(['message' => 'Berhasil Register!'], 201); //hanya memunculkan data berhasil
-        // return response()->json(['message' => 'Registration successful. Please check your email for the verification token.']);
     }
 
     // verify
