@@ -85,7 +85,7 @@ class ProductController extends Controller
      */
     public function show(string $id)
     {
-        $product = Product::find($id)->with(['category'])->get();
+        $product = Product::with(['category'])->findOrFail($id);
         return new MasterResource(true, 'Detai data product', $product);
     }
 

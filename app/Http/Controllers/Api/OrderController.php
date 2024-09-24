@@ -32,10 +32,10 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-        // $validator = Validator::make($request->all(), [
-        //     'user_id'=> 'required|exists:users,id',
-        //     ''
-        // ]);
+        $validator = $request->validate([
+            'user_id' => 'required|exists:users,id',
+            
+        ]);
     }
 
     /**
@@ -69,4 +69,10 @@ class OrderController extends Controller
     {
         //
     }
+
+    // protected function generateRefOrder() {
+    //     $latestOrder = Order::latest('id')->first();
+    //     $number = $latestOrder ? $latestOrder->id + 1 : 1;
+    //     return 'REF-' . str_pad($number, 5, '0', STR_PAD_LEFT);
+    // }
 }

@@ -16,8 +16,15 @@ return new class extends Migration
             $table->integer('user_id');
             $table->uuid('no_ref_order')->unique();
             $table->dateTime('order_date');
-            $table->integer('total_amount');
-            $table->string('status');
+            $table->decimal('total_amount', 10, 2)->default(0);
+            $table->enum('status', [
+                        'menunggu pembayaran',
+                        'verifikasi pembayaran',
+                        'gagal',
+                        'disiapkan',
+                        'dalam perjalanan',
+                        'sudah sammpai'
+            ])->default('menunggu pembayaran');
             $table->timestamps();
             $table->softDeletes();
         });
