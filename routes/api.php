@@ -25,10 +25,11 @@ Route::apiResource('/content', App\Http\Controllers\Api\ContentController::class
 Route::apiResource('/review', App\Http\Controllers\Api\ReviewController::class);
 Route::apiResource('/shipping', App\Http\Controllers\Api\ShippingControllers::class);
 
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/verify', [AuthController::class, 'verify'])->name('verify');
+Route::post('/login', [AuthController::class, 'login']);
+Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
+
 // route untuk register, login dan logout
 Route::prefix('account')->group(function () {
-    Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/verify', [AuthController::class, 'verify'])->name('verify');
-    Route::post('/login', [AuthController::class, 'login']);
-    Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 });
