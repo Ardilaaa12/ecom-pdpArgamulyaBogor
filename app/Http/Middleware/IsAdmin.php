@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-class IsCustomer
+class IsAdmin
 {
     public function handle(Request $request, Closure $next): Response
     {
@@ -24,7 +24,7 @@ class IsCustomer
         // dd($userRole);
 
         // Cek apakah role pengguna adalah 'customer'
-        if ($userRole === 'customer') {
+        if ($userRole === 'admin') {
             return $next($request);
         }
 
