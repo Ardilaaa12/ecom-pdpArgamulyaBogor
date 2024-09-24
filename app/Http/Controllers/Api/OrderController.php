@@ -32,12 +32,10 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-        $order = Order::create([
-            'user_id' => auth()->user()->id,  // Mendapatkan ID user yang sedang login
-            'product_id' => $validated['product_id'],
-            'quantity' => $validated['quantity'],
+        $validator = $request->validate([
+            'user_id' => 'required|exists:users,id',
+            
         ]);
-        
     }
 
     /**
@@ -71,4 +69,10 @@ class OrderController extends Controller
     {
         //
     }
+
+    // protected function generateRefOrder() {
+    //     $latestOrder = Order::latest('id')->first();
+    //     $number = $latestOrder ? $latestOrder->id + 1 : 1;
+    //     return 'REF-' . str_pad($number, 5, '0', STR_PAD_LEFT);
+    // }
 }

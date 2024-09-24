@@ -19,13 +19,13 @@ class Order extends Model
         'status',
     ];
 
-    public static function boot() {
-        parent::boot();
+    // public static function boot() {
+    //     parent::boot();
 
-        static::creating(function ($order){ 
-            $order->no_ref_order = 'REF-' . strtoupper(Str::random(3));
-        });
-    }
+    //     static::creating(function ($order){ 
+    //         $order->no_ref_order = 'REF-' . strtoupper(Str::random(3));
+    //     });
+    // }
 
     public function user() {
         return $this->belongsTo(User::class);
