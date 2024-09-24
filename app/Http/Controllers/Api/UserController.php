@@ -41,10 +41,10 @@ class UserController extends Controller
             'username' => 'required',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:8',
-            'fullname' => 'nullable|string',
-            'address' => 'nullable',
-            'phone_number' => 'nullable|numeric',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,svg,gif|max:2048',
+            'fullname' => 'required|string',
+            'address' => 'required',
+            'phone_number' => 'required|numeric',
+            'image' => 'required|image|mimes:jpeg,png,jpg,svg,gif|max:2048',
             'role' => 'required|in:admin,customer',
         ]);
 
@@ -70,7 +70,6 @@ class UserController extends Controller
             'phone_number' => $request->phone_number,
             'image' => $imageUrl, // Simpan URL gambar
             'role' => $request->role,
-            'is_verified' => 1,
         ]);
 
         if ($user->role === 'customer') {

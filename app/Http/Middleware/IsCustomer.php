@@ -9,28 +9,23 @@ use Symfony\Component\HttpFoundation\Response;
 
 class IsCustomer
 {
-    public function handle(Request $request, Closure $next): Response
-    {
-        // Cek apakah pengguna sedang login
-        if (!Auth::check()) {
-            return response()->json(['message' => 'Unauthenticated.'], 401); // 401 Unauthorized
-        }
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure  $next
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    // public function handle(Request $request, Closure $next): Response
+    // {
+    //     // Cek apakah pengguna yang sedang login memiliki role 'customer'
+    //     if (Auth::check() && Auth::user()->role === 'customer') {
+    //         return $next($request);
+    //     }
 
-        // Cek role pengguna
-        $userRole = Auth::user()->role;
-
-        // Tampilkan role pengguna untuk debugging
-        // Anda dapat menghapus baris ini setelah selesai debugging
-        // dd($userRole);
-
-        // Cek apakah role pengguna adalah 'customer'
-        if ($userRole === 'customer') {
-            return $next($request);
-        }
-
-        // Jika tidak, kembalikan respons JSON dengan pesan error
-        return response()->json([
-            'message' => 'Oops! You do not have permission to access this resource.'
-        ], 403); // 403 Forbidden
-    }
+    //     // Jika tidak, kembalikan respons JSON dengan pesan error
+    //     return response()->json([
+    //         'message' => 'Oops! You do not have permission to access this resource.'
+    //     ], 403); // 403 Forbidden
+    // }
 }

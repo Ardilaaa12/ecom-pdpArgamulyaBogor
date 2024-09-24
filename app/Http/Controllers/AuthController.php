@@ -84,11 +84,6 @@ class AuthController extends Controller
         ]);
 
         $user = User::where('email', $request->email)->first();
-        $userVerif = $user->is_verified;
-
-        if ($userVerif === 0) {
-            return response()->json(['message' => "Oops! You haven't verified your email yet."], 403);
-        }
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'Invalid Password'], 401);
