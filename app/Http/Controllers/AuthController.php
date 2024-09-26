@@ -3,13 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Cart;
+use App\Models\Like;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use App\Http\Resources\MasterResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Resources\MasterResource;
 
 class AuthController extends Controller
 {
@@ -38,6 +40,11 @@ class AuthController extends Controller
             'role' => 'customer',
             'verification_code' => $verificationToken,
         ]);
+
+        if ($user->role === 'customer') {
+            Cart::create(['user_id' => $user->id]); 
+            Like::create(['user_id' => $user->id]);
+        }
 
         // kirim email verifikasi
         Mail::send('emails.verification', ['token' => $verificationToken, 'username' => $user->username], function ($message) use ($user) {

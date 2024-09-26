@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Http\Resources\MasterResource;
+use App\Models\Like;
 use App\Models\LikeItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Controller;
+use App\Http\Resources\MasterResource;
 use Illuminate\Support\Facades\Validator;
 
 class LikeItemController extends Controller
@@ -33,7 +35,6 @@ class LikeItemController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'like_id' => 'required|exists:likes,id',
             'product_id' => 'required|exists:products,id',
             'quantity' => 'required|numeric',
         ]);
@@ -42,13 +43,20 @@ class LikeItemController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
+        $userID = Auth::user();
+        $like = Like::where('user_id', $userID->id)->first();
+
+        if (!$like) {
+            return response()->json(['error' => 'Like tidak ditemukan'], 404);
+        }
+
         $likeItem = LikeItem::create([
-            'like_id' => $request->like_id,
+            'like_id' => $like->id,
             'product_id' => $request->product_id,
             'quantity' => $request->quantity,
         ]);
 
-        return new MasterResource(true, 'Berhasil menambahkan item ke dalam like item', $likeItem);
+        return new MasterResource(true, 'Data berhasil di tambahkan kedalam cart', $likeItem);
     }
 
     /**

@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Http\Resources\MasterResource;
+use App\Models\Cart;
 use App\Models\CartItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Controller;
+use App\Http\Resources\MasterResource;
 use Illuminate\Support\Facades\Validator;
 
 class CartItemController extends Controller
@@ -33,7 +35,6 @@ class CartItemController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'cart_id' => 'required|exists:carts,id',
             'product_id' => 'required|exists:products,id',
             'quantity' => 'required|numeric',
         ]);
@@ -42,8 +43,15 @@ class CartItemController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
+        $userID = Auth::user();
+        $cart = Cart::where('user_id', $userID->id)->first();
+
+        if (!$cart) {
+            return response()->json(['error' => 'Cart tidak ditemukan'], 404);
+        }
+
         $cartItem = CartItem::create([
-            'cart_id' => $request->cart_id,
+            'cart_id' => $cart->id,
             'product_id' => $request->product_id,
             'quantity' => $request->quantity,
         ]);
