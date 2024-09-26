@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Http\Resources\MasterResource;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -96,6 +97,18 @@ class UserController extends Controller
     {
         $user = User::find($id);
         return new MasterResource(true, 'Detail data user', $user);
+    }
+
+    // ngambil data yang login saja
+    public function getUser(Request $request)
+    {
+        $user = Auth::user();
+        
+        if ($user) {
+            return response()->json($user, 200);
+        } else {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
     }
 
     /**
