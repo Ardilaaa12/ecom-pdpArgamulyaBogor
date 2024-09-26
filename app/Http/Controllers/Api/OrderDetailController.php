@@ -96,7 +96,7 @@ class OrderDetailController extends Controller
 
         // Cek stok produk
         if ($product->stock < $quantity) {
-            return response()->json(['message' => 'Insufficient stock'], 400);
+            return response()->json(['message' => 'Stock tidak cukup. Silahkan mengurangi jumlah barang'], 400);
         }
 
         $price = (int) str_replace(',', '', $product->price);
@@ -137,6 +137,9 @@ class OrderDetailController extends Controller
             $cartItem = CartItem::where('cart_id', $cart->id)->where('product_id', $productId)->first();
             if ($cartItem) {
                 $product = Product::find($cartItem->product_id);
+                if ($product->stock < $cartItem->quantity) {
+                    return response()->json(['message' => 'Stock tidak cukup. Silahkan mengurangi jumlah barang!'], 400);
+                }
                 $price = (int) str_replace(',', '', $product->price);
                 $subtotal = $price * $cartItem->quantity;
                 $totalPrice += $subtotal;
@@ -193,6 +196,9 @@ class OrderDetailController extends Controller
             $likeItem = LikeItem::where('like_id', $like->id)->where('product_id', $productId)->first();
             if ($likeItem) {
                 $product = Product::find($likeItem->product_id);
+                if ($product->stock < $likeItem->quantity) {
+                    return response()->json(['message' => 'Stock tidak cukup. Silahkan mengurangi jumlah barang!'], 400);
+                }
                 $price = (int) str_replace(',', '', $product->price);
                 $subtotal = $price * $likeItem->quantity;
                 $totalPrice += $subtotal;
