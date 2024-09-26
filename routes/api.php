@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\IsCustomer;
 use App\Http\Middleware\IsAdmin;
 
-// controllers
+// route function index, store, show, update, destroy
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\CategoriController;
