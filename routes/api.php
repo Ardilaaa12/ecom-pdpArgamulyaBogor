@@ -44,20 +44,18 @@ Route::apiResource('/review', App\Http\Controllers\Api\ReviewController::class);
 Route::apiResource('/shipping', App\Http\Controllers\Api\ShippingControllers::class);
 
 // route CRUD public function lain
-// Route::middleware('auth:sanctum')->get('/detail', [UserController::class, 'getUser']);
-Route::middleware('auth:sanctum')->post('/checkout', [OrderDetailController::class, 'store']);
-Route::middleware('auth:sanctum')->post('/cart/store', [CartController::class, 'store']);
-
-
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/verify', [AuthController::class, 'verify'])->name('verify');
 Route::post('/login', [AuthController::class, 'login']);
-Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 
 // route yang sudah memiliki middleware
 Route::middleware(['auth:sanctum'])->group(function () {
+    Route::middleware('auth:sanctum')->get('/detail', [UserController::class, 'getUser']);
+    Route::middleware('auth:sanctum')->post('/checkout', [OrderDetailController::class, 'store']);
+    Route::middleware('auth:sanctum')->post('/cart/store', [CartController::class, 'store']);
     Route::apiResource('/likes-item', App\Http\Controllers\Api\LikeItemController::class);
     Route::apiResource('/carts-item', App\Http\Controllers\Api\CartItemController::class);
+    Route::post('/logout', [AuthController::class, 'logout']);
 });
 
 Route::middleware(['auth:sanctum', IsCustomer::class])->group(function () {
