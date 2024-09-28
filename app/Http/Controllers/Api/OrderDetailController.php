@@ -137,6 +137,21 @@ class OrderDetailController extends Controller
             $cartItem = CartItem::where('cart_id', $cart->id)->where('product_id', $productId)->first();
             if ($cartItem) {
                 $product = Product::find($cartItem->product_id);
+
+                // mengecek apakah data minus atau tidak 
+                if ($cartItem->quantity < 0) {
+                    return response()->json([
+                        'message' => 'Jumlah untuk produk: ' . $product->name_product . ' tidak bisa negatif.'
+                    ], 400);
+                }
+        
+                // Pengecekan stok produk
+                if ($cartItem->quantity > $product->stock) {
+                    return response()->json([
+                        'message' => 'Kekurangan stock pada produk: ' . $product->name_product
+                    ], 400);
+                }
+
                 $price = (int) str_replace(',', '', $product->price);
                 $subtotal = $price * $cartItem->quantity;
                 $totalPrice += $subtotal;
@@ -188,11 +203,25 @@ class OrderDetailController extends Controller
         $totalPrice = 0;
         $like = Like::where('user_id', $user->id)->first();
 
-        // Proses item yang dipilih dari cart
+        // Proses item yang dipilih dari like
         foreach ($selectedItems as $productId) {
             $likeItem = LikeItem::where('like_id', $like->id)->where('product_id', $productId)->first();
             if ($likeItem) {
                 $product = Product::find($likeItem->product_id);
+
+                if ($likeItem->quantity < 0) {
+                    return response()->json([
+                        'message' => 'Jumlah untuk produk: ' . $product->name_product . ' tidak bisa negatif.'
+                    ], 400);
+                }
+        
+                // Pengecekan stok produk
+                if ($likeItem->quantity > $product->stock) {
+                    return response()->json([
+                        'message' => 'Kekurangan stock pada produk: ' . $product->name_product
+                    ], 400);
+                }
+
                 $price = (int) str_replace(',', '', $product->price);
                 $subtotal = $price * $likeItem->quantity;
                 $totalPrice += $subtotal;

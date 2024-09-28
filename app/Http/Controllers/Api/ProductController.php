@@ -18,9 +18,10 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $product = Product::with(['category'])->get();
+        $product = Product::with(['category'])->where('stock', '>', 0)->get();
         return new MasterResource(true, 'List product berhasil ditampilkan', $product);
     }
+
 
     /**
      * Show the form for creating a new resource.

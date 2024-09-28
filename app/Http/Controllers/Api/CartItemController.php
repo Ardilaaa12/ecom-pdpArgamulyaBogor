@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Cart;
 use App\Models\CartItem;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
@@ -50,6 +51,60 @@ class CartItemController extends Controller
             return response()->json(['error' => 'Cart tidak ditemukan'], 404);
         }
 
+        $product = Product::find($request->product_id); // Menggunakan find untuk mendapatkan produk
+
+        // Cek apakah produk ada
+        if (!$product) {
+            return response()->json(['error' => 'Product tidak ditemukan'], 404);
+        }
+
+        // Cari item di cart
+        $cartItem = CartItem::where('cart_id', $cart->id)
+                            ->where('product_id', $request->product_id)
+                            ->first();
+
+        if ($cartItem) {
+            // Jika item sudah ada, tambahkan quantity
+            if ($request->quantity <= 0) {
+                return response()->json(['message' => 'Jumlah yang anda masukan salah'], 400);
+            }
+
+            // Pengecekan stok produk
+            if ($request->quantity > $product->stock) {
+                return response()->json([
+                    'message' => 'Kekurangan stock pada produk: ' . $product->name
+                ], 400);
+            }
+
+            // Tambahkan quantity ke cart item yang sudah ada
+            $cartItem->quantity += $request->quantity;
+
+            if ($cartItem->quantity > $product->stock) {
+                return response()->json([
+                    'message' => 'Kekurangan stock pada produk: ' . $product->name
+                ], 400);
+            }
+
+            $cartItem->save();
+
+            return response()->json([
+                'message' => 'Quantity bertambah.'
+            ], 200);
+        }
+
+        // Jika produk belum ada di cart, buat item baru
+        if ($request->quantity <= 0) {
+            return response()->json(['message' => 'Jumlah yang anda masukan salah'], 400);
+        }
+
+        // Pengecekan stok produk
+        if ($request->quantity > $product->stock) {
+            return response()->json([
+                'message' => 'Kekurangan stock pada produk: ' . $product->name
+            ], 400);
+        }
+
+        // Buat item baru di cart
         $cartItem = CartItem::create([
             'cart_id' => $cart->id,
             'product_id' => $request->product_id,
