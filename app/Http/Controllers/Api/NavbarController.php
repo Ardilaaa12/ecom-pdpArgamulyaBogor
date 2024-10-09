@@ -87,4 +87,27 @@ class NavbarController extends Controller
         $data->delete();
         return new MasterResource(true, 'Navbar Berhasil Dihapus!', null);
     }
+
+    public function search(Request $request) 
+    {
+        $query = $request->input('query');
+        
+        // Periksa apakah query memiliki nilai sebelum dijalankan
+        if (!$query) {
+            return response()->json(['message' => 'Query tidak ditemukan'], 400);
+        }
+
+        $pages = Navbar::where('name', 'LIKE', "%{$query}%")
+            ->orWhere('route', 'LIKE', "%{$query}%")
+            ->orWhere('type', 'LIKE', "%{$query}%")
+            ->orWhere('status', $query)
+            ->get();
+
+        // Jika data tidak ditemukan, beri response yang sesuai
+        if ($pages->isEmpty()) {
+            return response()->json(['message' => 'Data tidak ditemukan'], 404);
+        }
+
+        return response()->json($pages);
+    }
 }

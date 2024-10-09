@@ -162,4 +162,27 @@ class ProductController extends Controller
 
         return new MasterResource(true, 'Data user berhasil dihapus', null);
     }
+
+    public function search(Request $request) 
+    {
+        $query = $request->input('query');
+        
+        // Periksa apakah query memiliki nilai sebelum dijalankan
+        if (!$query) {
+            return response()->json(['message' => 'Query tidak ditemukan'], 400);
+        }
+
+        $products = Product::where('name_product', 'LIKE', "%{$query}%")
+            ->orWhere('description', 'LIKE', "%{$query}%")
+            ->orWhere('price', $query)
+            ->get();
+
+        // Jika data tidak ditemukan, beri response yang sesuai
+        if ($products->isEmpty()) {
+            return response()->json(['message' => 'Produk tidak ditemukan'], 404);
+        }
+
+        return response()->json($products);
+    }
+
 }

@@ -27,6 +27,17 @@ use App\Http\Controllers\Api\SectionController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\ShippingControllers;
 
+// fitur search
+Route::get('/product/search', [ProductController::class, 'search']);
+Route::get('/pages/search', [NavbarController::class, 'search']);
+Route::get('/section/search', [SectionController::class, 'search']);
+Route::get('/content/search', [ContentController::class, 'search']);
+Route::get('/category/search', [CategoriController::class, 'search']);
+Route::get('/order/search', [OrderController::class, 'search']);
+Route::get('/payment/search', [PaymentController::class, 'search']);
+Route::get('/shipping/search', [ShippingControllers::class, 'search']);
+Route::get('/rekening/search', [RekeningController::class, 'search']);
+
 // route function index, store, show, update, destroy
 Route::apiResource('/users', App\Http\Controllers\Api\UserController::class);
 Route::apiResource('/category', App\Http\Controllers\Api\CategoriController::class);

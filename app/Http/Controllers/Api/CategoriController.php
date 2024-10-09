@@ -95,4 +95,23 @@ class CategoriController extends Controller
         $category->delete();
         return new MasterResource(true, 'Data berhasil dihapus', $category);
     }
+
+    public function search(Request $request) 
+    {
+        $query = $request->input('query');
+        
+        // Periksa apakah query memiliki nilai sebelum dijalankan
+        if (!$query) {
+            return response()->json(['message' => 'Query tidak ditemukan'], 400);
+        }
+
+        $categori = Category::where('name_category', 'LIKE', "%{$query}%")->get();
+
+        // Jika data tidak ditemukan, beri response yang sesuai
+        if ($categori->isEmpty()) {
+            return response()->json(['message' => 'Data tidak ditemukan'], 404);
+        }
+
+        return response()->json($categori);
+    }
 }

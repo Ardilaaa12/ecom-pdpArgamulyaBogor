@@ -132,9 +132,9 @@ class UserController extends Controller
         $oldEmail = $user->email;
 
         $validator = Validator::make($request->all(), [
-            'username' => 'required',
+            'username' => 'nullable',
             'email' => 'required|email', //validasi apakah bentunya email
-            'password' => 'required|min:8',
+            'password' => 'nullable|min:8',
             'fullname' => 'nullable|string',
             'address' => 'nullable',
             'phone_number' => 'nullable|numeric',
