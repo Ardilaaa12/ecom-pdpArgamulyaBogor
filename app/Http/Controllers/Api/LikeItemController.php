@@ -18,7 +18,15 @@ class LikeItemController extends Controller
      */
     public function index()
     {
-        $likeItem = LikeItem::with(['like'], ['product'])->get();
+        $userId = Auth::id();
+    
+        // Mendapatkan LikeItem yang terkait dengan user yang sedang login melalui relasi 'like'
+        $likeItem = LikeItem::whereHas('like', function($query) use ($userId) {
+                            $query->where('user_id', $userId); // Filter berdasarkan user_id di tabel 'likes'
+                        })
+                        ->with(['like', 'product'])
+                        ->get();
+    
         return new MasterResource(true, 'List data yang ada di like item', $likeItem);
     }
 

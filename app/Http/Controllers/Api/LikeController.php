@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Like;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\MasterResource;
 
@@ -14,8 +15,14 @@ class LikeController extends Controller
      */
     public function index(Request $request)
     {
-       $like = Like::latest()->get();
-       return new MasterResource(true, 'List like berhasil ditampilkan', $like);
+        // Mengambil ID pengguna yang sedang login
+        $userId = Auth::id();
+
+        // Mengambil data like yang terkait dengan pengguna yang sedang login
+        $like = Like::where('user_id', $userId) // Filter berdasarkan user_id
+                    ->get();
+
+        return new MasterResource(true, 'List like berhasil ditampilkan', $like);
     }
 
     /**

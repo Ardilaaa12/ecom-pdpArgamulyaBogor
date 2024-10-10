@@ -43,7 +43,6 @@ Route::apiResource('/users', App\Http\Controllers\Api\UserController::class);
 Route::apiResource('/category', App\Http\Controllers\Api\CategoriController::class);
 Route::apiResource('/products', App\Http\Controllers\Api\ProductController::class);
 Route::apiResource('/carts', App\Http\Controllers\Api\CartController::class);
-Route::apiResource('/likes', App\Http\Controllers\Api\LikeController::class);
 Route::apiResource('/orders', App\Http\Controllers\Api\OrderController::class);
 Route::apiResource('/orderDetail', App\Http\Controllers\Api\OrderDetailController::class);
 Route::apiResource('/rekening', App\Http\Controllers\Api\RekeningController::class);
@@ -62,6 +61,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::middleware('auth:sanctum')->get('/detail', [UserController::class, 'getUser']);
     Route::middleware('auth:sanctum')->post('/checkout', [OrderDetailController::class, 'store']);
     Route::middleware('auth:sanctum')->post('/cart/store', [CartController::class, 'store']);
+    Route::apiResource('/likes', App\Http\Controllers\Api\LikeController::class);
     Route::apiResource('/likes-item', App\Http\Controllers\Api\LikeItemController::class);
     Route::apiResource('/carts-item', App\Http\Controllers\Api\CartItemController::class);
     Route::post('/logout', [AuthController::class, 'logout']);
