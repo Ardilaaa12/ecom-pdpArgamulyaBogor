@@ -12,7 +12,6 @@ class LikeItem extends Model
     protected $fillable = [
         'like_id',
         'product_id',
-        'quantity',
     ];
 
     public function like() {
