@@ -7,16 +7,24 @@ use App\Http\Resources\MasterResource;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class ShippingControllers extends Controller
 {
     public function index()
     {
-        $data = Shipping::with('order')->get();
-        return new MasterResource(true, 'List Data Pengiriman', $data);
+        // Mendapatkan ID pengguna yang sedang login
+        $userId = auth()->id();
 
+        // Mengambil data shipping hanya untuk user yang sedang login
+        $data = Shipping::whereHas('order', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })->with('order')->get();
+
+        return new MasterResource(true, 'List Data Pengiriman', $data);
     }
+
 
     public function store(Request $request)
     {
@@ -64,6 +72,32 @@ class ShippingControllers extends Controller
         ]);
 
         return new MasterResource(true, 'Alamat Pengiriman berhasil diubah!', $data);
+    }
+
+    public function updateStatus(Request $request, string $shippingId)
+    {
+        // Validasi status
+        $validStatuses = [
+            'disiapkan',
+            'dalam perjalanan',
+            'sudah sampai'
+        ];
+
+        // Cek apakah status valid
+        if (!in_array($request->input('status'), $validStatuses)) {
+            return response()->json(['error' => 'Status tidak valid'], 422);
+        }
+
+        // Temukan shipping berdasarkan ID
+        $shipping = Shipping::find($shippingId);
+        if (!$shipping) {
+            return response()->json(['error' => 'Shipping tidak ditemukan'], 404);
+        }
+
+        // Update status shipping
+        $shipping->update(['shipping_status' => $request->input('status')]);
+
+        return response()->json(['message' => 'Status shipping berhasil diperbarui', 'status' => $shipping->shipping_status]);
     }
 
     public function destroy($id)

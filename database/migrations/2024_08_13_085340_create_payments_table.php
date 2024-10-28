@@ -15,9 +15,10 @@ return new class extends Migration
             $table->id();
             $table->integer('order_id');
             $table->integer('payment_master_id');
-            $table->dateTime('payment_date');
-            $table->integer('payment_amount');
-            $table->string('payment_image');
+            $table->dateTime('payment_date')->nullable();
+            $table->integer('payment_amount')->nullable();
+            $table->string('payment_image')->nullable();
+            $table->string('account_name')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

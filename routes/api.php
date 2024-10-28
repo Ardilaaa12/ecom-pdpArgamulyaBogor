@@ -14,9 +14,7 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\CategoriController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\CartController;
-use App\Http\Controllers\Api\CartItemController;
 use App\Http\Controllers\Api\LikeController;
-use App\Http\Controllers\Api\LikeItemController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\OrderDetailController;
 use App\Http\Controllers\Api\RekeningController;
@@ -42,12 +40,12 @@ Route::get('/rekening/search', [RekeningController::class, 'search']);
 Route::apiResource('/users', App\Http\Controllers\Api\UserController::class);
 Route::apiResource('/category', App\Http\Controllers\Api\CategoriController::class);
 Route::apiResource('/products', App\Http\Controllers\Api\ProductController::class);
-Route::apiResource('/carts', App\Http\Controllers\Api\CartController::class);
 Route::apiResource('/orders', App\Http\Controllers\Api\OrderController::class);
 Route::apiResource('/orderDetail', App\Http\Controllers\Api\OrderDetailController::class);
 Route::apiResource('/rekening', App\Http\Controllers\Api\RekeningController::class);
 Route::apiResource('/payment', App\Http\Controllers\Api\PaymentController::class);
 Route::apiResource('/navbar', App\Http\Controllers\Api\NavbarController::class);
+Route::apiResource('/section', App\Http\Controllers\Api\SectionController::class);
 Route::apiResource('/content', App\Http\Controllers\Api\ContentController::class);
 Route::apiResource('/review', App\Http\Controllers\Api\ReviewController::class);
 
@@ -58,19 +56,19 @@ Route::post('/login', [AuthController::class, 'login']);
 
 // route yang sudah memiliki middleware
 Route::middleware(['auth:sanctum'])->group(function () {
-    Route::middleware('auth:sanctum')->get('/detail', [UserController::class, 'getUser']);
-    Route::middleware('auth:sanctum')->post('/checkout', [OrderDetailController::class, 'store']);
-    Route::middleware('auth:sanctum')->post('/cart/store', [CartController::class, 'store']);
-    Route::apiResource('/likes', App\Http\Controllers\Api\LikeController::class);
-    Route::apiResource('/likes-item', App\Http\Controllers\Api\LikeItemController::class);
-    Route::apiResource('/carts-item', App\Http\Controllers\Api\CartItemController::class);
+    Route::get('/detail', [UserController::class, 'getUser']);
+    Route::post('/order/checkout', [OrderDetailController::class, 'store']);
+    Route::get('/see', [OrderDetailController::class, 'see']);
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::apiResource('/shipping', App\Http\Controllers\Api\ShippingControllers::class);
+    Route::apiResource('/likes', App\Http\Controllers\Api\LikeController::class);
+    Route::apiResource('/carts', App\Http\Controllers\Api\CartController::class);
+    Route::put('/order/status/{orderId}', [OrderDetailController::class, 'updateStatus']);
+    Route::put('/shipping/status/{shippingId}', [ShippingControllers::class, 'updateStatus']);
 });
 
 Route::middleware(['auth:sanctum', IsCustomer::class])->group(function () {
-    Route::apiResource('/section', App\Http\Controllers\Api\SectionController::class);
 });
 
 Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
-    Route::apiResource('/shipping', App\Http\Controllers\Api\ShippingControllers::class);
 });

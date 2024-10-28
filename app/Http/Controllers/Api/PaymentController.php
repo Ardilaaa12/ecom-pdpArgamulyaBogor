@@ -31,42 +31,43 @@ class PaymentController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'order_id' => 'required',
-            'payment_master_id' => 'required|exists:rekenings,id',
-            'payment_date' => 'required',
-            'payment_amount' => 'required|numeric',
-            'payment_image' => 'required|image:png,jpg,jpeg,svg',
-        ]);
 
-        if($validator->fails()) {
-            return response()->json($validator->errors(), 422);
-        }
+    // public function store(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'order_id' => 'required',
+    //         'payment_master_id' => 'required|exists:rekenings,id',
+    //         'payment_date' => 'required',
+    //         'payment_amount' => 'required|numeric',
+    //         'payment_image' => 'required|image:png,jpg,jpeg,svg',
+    //     ]);
 
-        $paymentImage = $request->file('payment_image');
-        $paymentImageName = $paymentImage->hashName();
-        $paymentImage->storeAs('public/payment', $paymentImageName);
+    //     if($validator->fails()) {
+    //         return response()->json($validator->errors(), 422);
+    //     }
 
-        $paymentImageUrl = asset('storage/payment/' . $paymentImageName);
+    //     $paymentImage = $request->file('payment_image');
+    //     $paymentImageName = $paymentImage->hashName();
+    //     $paymentImage->storeAs('public/payment', $paymentImageName);
 
-        $payment = Payment::create([
-            'order_id' => $request->order_id,
-            'payment_master_id' => $request->payment_master_id,
-            'payment_date' => $request->payment_date,
-            'payment_amount' => $request->payment_amount,
-            'payment_image' => $paymentImageUrl,
-        ]);
+    //     $paymentImageUrl = asset('storage/payment/' . $paymentImageName);
 
-        if($payment) {
-            return new MasterResource(true, 'Data user berhasil ditambahkan', $payment);
-        } else {
-         // Hapus file gambar jika penyimpanan data gagal
-         Storage::delete('public/payment/' . $paymentImageName);
-         return response()->json(['error' => 'Gagal menyimpan data payment'], 500);
-        }
-    }
+    //     $payment = Payment::create([
+    //         'order_id' => $request->order_id,
+    //         'payment_master_id' => $request->payment_master_id,
+    //         'payment_date' => $request->payment_date,
+    //         'payment_amount' => $request->payment_amount,
+    //         'payment_image' => $paymentImageUrl,
+    //     ]);
+
+    //     if($payment) {
+    //         return new MasterResource(true, 'Data user berhasil ditambahkan', $payment);
+    //     } else {
+    //      // Hapus file gambar jika penyimpanan data gagal
+    //      Storage::delete('public/payment/' . $paymentImageName);
+    //      return response()->json(['error' => 'Gagal menyimpan data payment'], 500);
+    //     }
+    // }
 
     /**
      * Display the specified resource.
@@ -90,49 +91,55 @@ class PaymentController extends Controller
     public function update(Request $request, string $id)
     {
         $validator = Validator::make($request->all(), [
-            'order_id' => 'required',
-            'payment_master_id' => 'required|exists:rekenings,id',
+            'payment_master_id' => 'nullable|exists:rekenings,id',
             'payment_date' => 'required',
             'payment_amount' => 'required|numeric',
-            'payment_image' => 'required|image:png,jpg,jpeg,svg',
+            'payment_image' => 'required|image|mimes:png,jpg,jpeg,svg',
+            'account_name' => 'nullable|regex:/^[A-Za-z\s]+$/',
         ]);
 
-        if($validator->fails()) {
+        if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
         $payment = Payment::find($id);
 
-        if($request->hasFile('payment_image')) {
-            // upload image
+        if ($request->hasFile('payment_image')) {
             $paymentImage = $request->file('payment_image');
             $paymentImageName = $paymentImage->hashName();
             $paymentImage->storeAs('public/payment', $paymentImageName);
-    
             $paymentImageUrl = asset('storage/payment/' . $paymentImageName);
-    
-            // delete old image
+
             Storage::delete('public/payment/' . basename($payment->payment_image));
-            // upload payment with new image 
+
             $payment->update([
-                'order_id' => $request->order_id,
-                'payment_master_id' => $request->payment_master_id,
                 'payment_date' => $request->payment_date,
                 'payment_amount' => $request->payment_amount,
                 'payment_image' => $paymentImageUrl,
+                'account_name' => $request->account_name,
             ]);
+
+            if ($request->filled('payment_master_id')) {
+                $payment->update(['payment_master_id' => $request->payment_master_id]);
+            }
+
         } else {
-            $payment->update([
-                'order_id' => $request->order_id,
-                'payment_master_id' => $request->payment_master_id,
+            $data = [
                 'payment_date' => $request->payment_date,
                 'payment_amount' => $request->payment_amount,
-            ]);
+                'account_name' => $request->account_name,
+            ];
+
+            if ($request->filled('payment_master_id')) {
+                $data['payment_master_id'] = $request->payment_master_id;
+            }
+
+            $payment->update($data);
         }
 
         return new MasterResource(true, 'Berhasil mengubah data payment', $payment);
-
     }
+
 
     /**
      * Remove the specified resource from storage.

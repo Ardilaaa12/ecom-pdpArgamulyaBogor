@@ -15,6 +15,7 @@ class Payment extends Model
         'payment_date',
         'payment_amount',
         'payment_image',
+        'account_name',
     ];
 
     public function order() {
