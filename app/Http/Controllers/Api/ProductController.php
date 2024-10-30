@@ -64,7 +64,7 @@ class ProductController extends Controller
             'category_id' => $request->category_id,
             'name_product' => $request->name_product,
             'description' => $request->description,
-            'price' => number_format($request->price),
+            'price' => $request->price,
             'stock' => $request->stock,
             'photo_product' => $photoProductUrl, // Simpan URL gambar
         ]);

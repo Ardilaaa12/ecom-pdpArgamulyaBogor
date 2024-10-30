@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Payment;
+use App\Models\Order;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\MasterResource;
@@ -135,6 +136,11 @@ class PaymentController extends Controller
             }
 
             $payment->update($data);
+        }
+
+        $order = Order::find($payment->order_id);
+        if ($order) {
+            $order->update(['status' => 'verifikasi pembayaran']);
         }
 
         return new MasterResource(true, 'Berhasil mengubah data payment', $payment);

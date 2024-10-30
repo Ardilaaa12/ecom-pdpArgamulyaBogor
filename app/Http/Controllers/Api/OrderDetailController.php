@@ -84,12 +84,18 @@ class OrderDetailController extends Controller
 
     public function store(Request $request) 
     {
-        $selectedItems = $request->input('selected_items');
+        $user = Auth::user();
+        $cart = Cart::where('user_id', $user->id)->first();
+
+        $selectedItems = CartItem::where('cart_id', $cart->id)
+                                ->where('status', 1)
+                                ->pluck('product_id')
+                                ->toArray();
+
         $shippingDate = $request->input('shipping_date');
         $address = $request->input('address');
         $paymentMethod = $request->input('payment_method');
         $notes = $request->input('notes');
-        $user = Auth::user();
         
         if (empty($selectedItems)) {
             return response()->json(['message' => 'Tidak ada item yang dipilih'], 400);
@@ -213,6 +219,13 @@ class OrderDetailController extends Controller
 
         // Update status order
         $order->update(['status' => $request->input('status')]);
+
+        if ($request->input('status') == 'berhasil') {
+            $shipping = Shipping::where('order_id', $order->id)->first();
+            if ($shipping) {
+                $shipping->update(['shipping_status' => 'disiapkan']);
+            }
+        }
 
         return response()->json(['message' => 'Status order berhasil diperbarui', 'status' => $order->status]);
     }

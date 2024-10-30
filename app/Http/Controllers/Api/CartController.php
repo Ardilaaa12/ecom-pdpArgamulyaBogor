@@ -21,25 +21,59 @@ class CartController extends Controller
         // Mengambil ID pengguna yang sedang login
         $userId = Auth::id();
 
-        // Mengambil data like yang terkait dengan pengguna yang sedang login dan memuat data like_items
+        // Mengambil data cart yang terkait dengan pengguna dan memuat relasi cartItems
         $cart = Cart::where('user_id', $userId)
-                    ->with(['cartItems.product']) // Muat relasi like_items
+                    ->with(['cartItems.product'])
                     ->get();
 
-        return new MasterResource(true, 'List cart berhasil ditampilkan', $cart);
+        // Menghitung total dari item dengan `status` bernilai `true`
+        $total = $cart->flatMap->cartItems
+                    ->filter(fn($item) => $item->status)
+                    ->sum(fn($item) => floatval($item->product->price) * $item->quantity);
+
+        return new MasterResource(true, 'List cart berhasil ditampilkan', [
+            'cart' => $cart,
+            'total' => $total
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    // customer
+    public function getTotal(Request $request, $itemId)
     {
-        //
+        // Memastikan status ada di dalam request
+        if (!$request->has('status')) {
+            return response()->json(['message' => 'Status is required'], 400);
+        }
+
+        $cartItem = CartItem::where('id', $itemId)
+                    ->whereHas('cart', function($query) {
+                        $query->where('user_id', auth()->id());
+                    })->first();
+
+        if (!$cartItem) {
+            return response()->json(['message' => 'Item not found'], 404);
+        }
+
+        // Update status item
+        $cartItem->update(['status' => $request->status]);
+
+        // Ambil cart dan total
+        $cart = Cart::where('user_id', auth()->id())
+                    ->with(['cartItems.product'])
+                    ->first(); // Mengambil hanya satu cart
+
+        // Menghitung total dari item dengan `status` bernilai `true`
+        $total = $cart->cartItems
+                    ->filter(fn($item) => $item->status)
+                    ->sum(fn($item) => floatval($item->product->price) * $item->quantity);
+
+        return response()->json([
+            'message' => 'Item status updated',
+            'total' => $total,
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [

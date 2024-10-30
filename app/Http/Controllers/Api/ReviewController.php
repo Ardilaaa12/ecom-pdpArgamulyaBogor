@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\MasterResource;
 use Illuminate\Support\Facades\DB;
 // untuk format waktu
@@ -14,10 +15,22 @@ use Carbon\Carbon;
 
 class ReviewController extends Controller
 {
+    // admin
    public function index()
    {
-        $data = Review::with('user')->get();    
+        $userId = Auth::id();
+
+        $data = Review::where('user_id', $userId)
+                        ->with(['user', 'product'])
+                        ->get();
+        // $data = Review::with(['user', 'product'])->get();    
         return new MasterResource(true, 'List Data Review', $data);
+   }
+
+   public function see()
+   {
+        $data = Review::with(['user', 'product'])->get();
+        return new MasterResource(true, 'List Data  Review', $data);
    }
 
    public function store(Request $request)

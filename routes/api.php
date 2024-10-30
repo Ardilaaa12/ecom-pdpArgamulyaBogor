@@ -47,19 +47,22 @@ Route::apiResource('/payment', App\Http\Controllers\Api\PaymentController::class
 Route::apiResource('/navbar', App\Http\Controllers\Api\NavbarController::class);
 Route::apiResource('/section', App\Http\Controllers\Api\SectionController::class);
 Route::apiResource('/content', App\Http\Controllers\Api\ContentController::class);
-Route::apiResource('/review', App\Http\Controllers\Api\ReviewController::class);
 
 // route CRUD public function lain
+Route::get('/review/all', [ReviewController::class, 'see']);
+Route::get('/penjualan', [OrderController::class, 'monthlyData']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/verify', [AuthController::class, 'verify'])->name('verify');
 Route::post('/login', [AuthController::class, 'login']);
 
 // route yang sudah memiliki middleware
 Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('/cart/total/{itemId}', [CartController::class, 'getTotal']);
     Route::get('/detail', [UserController::class, 'getUser']);
     Route::post('/order/checkout', [OrderDetailController::class, 'store']);
     Route::get('/see', [OrderDetailController::class, 'see']);
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::apiResource('/review', App\Http\Controllers\Api\ReviewController::class);
     Route::apiResource('/shipping', App\Http\Controllers\Api\ShippingControllers::class);
     Route::apiResource('/likes', App\Http\Controllers\Api\LikeController::class);
     Route::apiResource('/carts', App\Http\Controllers\Api\CartController::class);

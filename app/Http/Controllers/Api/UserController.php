@@ -100,7 +100,7 @@ class UserController extends Controller
         return new MasterResource(true, 'Detail data user', $user);
     }
 
-    // ngambil data yang login saja
+    // customer
     public function getUser(Request $request)
     {
         $user = Auth::user();
@@ -132,12 +132,12 @@ class UserController extends Controller
         $oldEmail = $user->email;
 
         $validator = Validator::make($request->all(), [
-            'username' => 'nullable',
+            'username' => 'required',
             'email' => 'required|email', //validasi apakah bentunya email
             'password' => 'nullable|min:8',
             'fullname' => 'nullable|string',
             'address' => 'nullable',
-            'phone_number' => 'nullable|numeric',
+            'phone_number' => 'nullable',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,svg,gif|max:2048',
         ]);
 
