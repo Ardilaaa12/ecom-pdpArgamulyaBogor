@@ -65,8 +65,8 @@ Route::get('/order/statusBerhasil', [OrderController::class, 'statusBerhasil']);
 Route::get('/order/statusGagal', [OrderController::class, 'statusGagal']);
 
 // ubah status order
-Route::put('/order/statusBerhasil/{orderId}', [OrderDetailController::class, 'updateStatusBerhasil']);
-Route::put('/order/statusGagal/{orderId}', [OrderDetailController::class, 'updateStatusGagal']);
+Route::put('/order/statusBerhasil/{id}', [OrderDetailController::class, 'updateStatusBerhasil']);
+Route::put('/order/statusGagal/{id}', [OrderDetailController::class, 'updateStatusGagal']);
 
 // ubah status pengiriman / shipping
 Route::put('/shipping/statusKirim/{shippingId}', [ShippingControllers::class, 'updateStatusPengiriman']);

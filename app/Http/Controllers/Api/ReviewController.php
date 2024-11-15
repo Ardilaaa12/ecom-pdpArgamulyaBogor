@@ -27,7 +27,6 @@ class ReviewController extends Controller
     {
         // validasi
         $validator = Validator::make($request->all(), [
-            'user_id'       => 'required|exists:users,id',
             'product_id'    => 'required|exists:products,id',
             'image'         => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'description'   => 'required',
@@ -49,7 +48,7 @@ class ReviewController extends Controller
 
         // tambah data
         $data = Review::create([
-            'user_id'       => $request->user_id,
+            'user_id'       => auth()->id(),
             'product_id'    => $request->product_id,
             'image'         => $imageUrl,
             'description'   => $request->description,
@@ -73,7 +72,6 @@ class ReviewController extends Controller
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'user_id'       => 'required|exists:users,id',
             'product_id'    => 'required|exists:products,id',
             'description'   => 'required',
             'rate'          => 'required|integer|in:1,2,3,4,5',
@@ -99,7 +97,6 @@ class ReviewController extends Controller
 
             // update data
             $data->update([
-                'user_id'       => $request->user_id,
                 'product_id'    => $request->product_id,
                 'image'         => $imageUrl,
                 'description'   => $request->description,
@@ -107,7 +104,6 @@ class ReviewController extends Controller
             ]);
         } else {
             $data->update([
-                'user_id'       => $request->user_id,
                 'product_id'    => $request->product_id,
                 'description'   => $request->description,
                 'rate'          => $request->rate,

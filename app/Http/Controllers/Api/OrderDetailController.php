@@ -205,12 +205,18 @@ class OrderDetailController extends Controller
         // return new MasterResource(true, "List data yang ada di Order Detail", $notes);
     }
 
-    public function updateStatusBerhasil(string $orderId)
+    public function updateStatusBerhasil(string $id)
     {
         // Temukan order_detail berdasarkan ID
-        $order = Order::find($orderId);
+        $orderDetail = OrderDetail::find($id);
+        if (!$orderDetail) {
+            return response()->json(['error' => 'Order detail tidak ditemukan'], 404);
+        }
+
+        // Cari order berdasarkan kolom order_id di order_detail
+        $order = Order::find($orderDetail->order_id);
         if (!$order) {
-            return response()->json(['error' => 'Order tidak ditemukan'], 404);
+            return response()->json(['error' => 'Order tidak ditemukan untuk order detail ini'], 404);
         }
 
         // Update status order menjadi 'berhasil'
@@ -222,19 +228,29 @@ class OrderDetailController extends Controller
             $shipping->update(['shipping_status' => 'disiapkan']);
         }
 
-        return response()->json(['message' => 'Status order berhasil diperbarui', 'status' => $order->status]);
+        return response()->json([
+            'message' => 'Status order berhasil diperbarui',
+            'status' => $order->status,
+        ]);
     }
 
 
-    public function updateStatusGagal(string $orderId)
+
+    public function updateStatusGagal(string $id)
     {
-        // Temukan order berdasarkan ID
-        $order = Order::find($orderId);
-        if (!$order) {
-            return response()->json(['error' => 'Order tidak ditemukan'], 404);
+        // Temukan order_detail berdasarkan ID
+        $orderDetail = OrderDetail::find($id);
+        if (!$orderDetail) {
+            return response()->json(['error' => 'Order detail tidak ditemukan'], 404);
         }
 
-        // Update status order menjadi 'gagal'
+        // Cari order berdasarkan kolom order_id di order_detail
+        $order = Order::find($orderDetail->order_id);
+        if (!$order) {
+            return response()->json(['error' => 'Order tidak ditemukan untuk order detail ini'], 404);
+        }
+
+        // Update status order menjadi 'berhasil'
         $order->update(['status' => 'gagal']);
 
         // Cek dan update status pengiriman jika ada data di tabel shipping
@@ -243,7 +259,10 @@ class OrderDetailController extends Controller
             $shipping->update(['shipping_status' => '-']);
         }
 
-        return response()->json(['message' => 'Status order berhasil diperbarui', 'status' => $order->status]);
+        return response()->json([
+            'message' => 'Status order berhasil diperbarui',
+            'status' => $order->status,
+        ]);
     }
 
 
