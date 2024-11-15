@@ -36,9 +36,12 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+
+        \Log::info('input category_id:', $request->all());
+
         // Validasi input
         $validator = Validator::make($request->all(), [
-            'category_id' => 'required',
+            'category_id' => 'required|numeric',
             'name_product' => 'required',
             'description' => 'required',
             'price' => 'required|numeric',

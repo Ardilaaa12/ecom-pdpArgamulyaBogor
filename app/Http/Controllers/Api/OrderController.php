@@ -17,7 +17,7 @@ class OrderController extends Controller
     // admin 
     public function index()
     {
-        $user = User::with(['order'])->get();
+        $user = User::with(['order.shipping'])->get();
         // $order = Order::with(['user'])->get();
         return new MasterResource(true, 'List data yang ada di order', $user);
     }
@@ -44,7 +44,7 @@ class OrderController extends Controller
     // admin
     public function show(string $id)
     {
-        $order = Order::find($id);
+        $order = Order::with(['orderDetail', 'shipping'])->find($id);
 
         if ($order) {
             return new MasterResource(true, 'Detail data order', $order);
@@ -149,5 +149,35 @@ class OrderController extends Controller
             'Penjualan tahunan ini' =>$penghasilanTahunan,
             'Penjualan Bulan ini' => $hasil,
         ]);
+    }
+
+    public function status()
+    {
+        $order = Order::whereIn('status', ['menunggu pembayaran', 'verifikasi pembayaran'])
+                                    ->with(['user'])
+                                    ->latest()
+                                    ->get();
+
+        return new MasterResource(true, 'Data Order', $order);
+    }
+
+    public function statusBerhasil()
+    {
+        $order = Order::where('status', 'berhasil')
+                                    ->with(['user'])
+                                    ->latest()
+                                    ->get();
+
+        return new MasterResource(true, 'Data Order Berhasil', $order);
+    }
+
+    public function statusGagal()
+    {
+        $order = Order::where('status', 'gagal')
+                                    ->with(['user'])
+                                    ->latest()
+                                    ->get();
+
+        return new MasterResource(true, 'Data Order Gagal', $order);
     }
 }

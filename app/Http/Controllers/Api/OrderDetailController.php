@@ -27,16 +27,25 @@ class OrderDetailController extends Controller
     //  role admin (all)
     public function index()
     {
-        $OrderDetail = OrderDetail::with(['product', 'order.user'])->get()->map(function ($orderDetail) {
-            // format bentuk uang
-            $orderDetail->price_unit = number_format($orderDetail->price_unit, 0, ',', '.');
-            $orderDetail->sub_total = number_format($orderDetail->sub_total, 0, ',', '.');
-            
-            return $orderDetail;
-        });
+        $orders = Order::with(['user', 'orderDetail.product'])->get()->map(function ($order) {
+            $order->total_amount = number_format(floatval($order->total_amount), 0, ',', '.');
+            $order->orderDetail->map(function ($orderDetail) {
 
-        return new MasterResource(true, "List data yang ada di Order Detail", $OrderDetail);
+                $orderDetail->price_unit = number_format(floatval($orderDetail->price_unit), 0, ',', '.');
+                $orderDetail->sub_total = number_format(floatval($orderDetail->sub_total), 0, ',', '.');
+    
+                $orderDetail->product->price = number_format(floatval($orderDetail->product->price), 0, ',', '.');
+    
+                return $orderDetail;
+            });
+    
+            return $order;
+        });
+    
+        return new MasterResource(true, "List data yang ada di Order Detail", $orders);
     }
+    
+    
 
     // role user (login sj)
     public function see()
@@ -196,49 +205,57 @@ class OrderDetailController extends Controller
         // return new MasterResource(true, "List data yang ada di Order Detail", $notes);
     }
 
-    public function updateStatus(Request $request, string $orderId)
+    public function updateStatusBerhasil(string $orderId)
     {
-        // Validasi status
-        $validStatuses = [
-            'menunggu pembayaran',
-            'verifikasi pembayaran',
-            'gagal',
-            'berhasil'
-        ];
-
-        // Cek apakah status valid
-        if (!in_array($request->input('status'), $validStatuses)) {
-            return response()->json(['error' => 'Status tidak valid'], 422);
+        // Temukan order_detail berdasarkan ID
+        $order = Order::find($orderId);
+        if (!$order) {
+            return response()->json(['error' => 'Order tidak ditemukan'], 404);
         }
 
+        // Update status order menjadi 'berhasil'
+        $order->update(['status' => 'berhasil']);
+
+        // Cek dan update status pengiriman jika ada data di tabel shipping
+        $shipping = Shipping::where('order_id', $order->id)->first();
+        if ($shipping) {
+            $shipping->update(['shipping_status' => 'disiapkan']);
+        }
+
+        return response()->json(['message' => 'Status order berhasil diperbarui', 'status' => $order->status]);
+    }
+
+
+    public function updateStatusGagal(string $orderId)
+    {
         // Temukan order berdasarkan ID
         $order = Order::find($orderId);
         if (!$order) {
             return response()->json(['error' => 'Order tidak ditemukan'], 404);
         }
 
-        // Update status order
-        $order->update(['status' => $request->input('status')]);
+        // Update status order menjadi 'gagal'
+        $order->update(['status' => 'gagal']);
 
-        if ($request->input('status') == 'berhasil') {
-            $shipping = Shipping::where('order_id', $order->id)->first();
-            if ($shipping) {
-                $shipping->update(['shipping_status' => 'disiapkan']);
-            }
+        // Cek dan update status pengiriman jika ada data di tabel shipping
+        $shipping = Shipping::where('order_id', $order->id)->first();
+        if ($shipping) {
+            $shipping->update(['shipping_status' => '-']);
         }
 
         return response()->json(['message' => 'Status order berhasil diperbarui', 'status' => $order->status]);
     }
 
+
     // function untuk admin
     public function show(string $id)
     {
-        // Mencari order detail berdasarkan ID
-        $orderDetail = OrderDetail::with(['product', 'order.user'])->find($id);
-
+        // Mencari order berdasarkan ID
+        $orders = Order::with(['user', 'orderDetail.product'])->find($id);
+        
         // Memeriksa apakah order detail ditemukan
-        if ($orderDetail) {
-            return response()->json($orderDetail, 200);
+        if ($orders) {
+            return response()->json($orders, 200);
         } else {
             return response()->json(['message' => 'Order detail tidak ditemukan'], 404);
         }

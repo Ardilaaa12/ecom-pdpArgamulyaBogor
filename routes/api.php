@@ -35,6 +35,7 @@ Route::get('/order/search', [OrderController::class, 'search']);
 Route::get('/payment/search', [PaymentController::class, 'search']);
 Route::get('/shipping/search', [ShippingControllers::class, 'search']);
 Route::get('/rekening/search', [RekeningController::class, 'search']);
+Route::get('/user/search', [UserController::class, 'search']);
 
 // route function index, store, show, update, destroy
 Route::apiResource('/users', App\Http\Controllers\Api\UserController::class);
@@ -47,27 +48,50 @@ Route::apiResource('/payment', App\Http\Controllers\Api\PaymentController::class
 Route::apiResource('/navbar', App\Http\Controllers\Api\NavbarController::class);
 Route::apiResource('/section', App\Http\Controllers\Api\SectionController::class);
 Route::apiResource('/content', App\Http\Controllers\Api\ContentController::class);
+Route::apiResource('/shipping', App\Http\Controllers\Api\ShippingControllers::class);
 
-// route CRUD public function lain
-Route::get('/review/all', [ReviewController::class, 'see']);
-Route::get('/penjualan', [OrderController::class, 'monthlyData']);
+
+// login-logout-register
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/verify', [AuthController::class, 'verify'])->name('verify');
+Route::post('/verify', [AuthController::class, 'verify']);
 Route::post('/login', [AuthController::class, 'login']);
+
+// perhitungan data penjualan
+Route::get('/penjualan', [OrderController::class, 'monthlyData']);
+
+// laporan penjualan
+Route::get('/order/status', [OrderController::class, 'status']);
+Route::get('/order/statusBerhasil', [OrderController::class, 'statusBerhasil']);
+Route::get('/order/statusGagal', [OrderController::class, 'statusGagal']);
+
+// ubah status order
+Route::put('/order/statusBerhasil/{orderId}', [OrderDetailController::class, 'updateStatusBerhasil']);
+Route::put('/order/statusGagal/{orderId}', [OrderDetailController::class, 'updateStatusGagal']);
+
+// ubah status pengiriman / shipping
+Route::put('/shipping/statusKirim/{shippingId}', [ShippingControllers::class, 'updateStatusPengiriman']);
+Route::put('/shipping/statusSampai/{shippingId}', [ShippingControllers::class, 'updateStatusSampai']);
 
 // route yang sudah memiliki middleware
 Route::middleware(['auth:sanctum'])->group(function () {
-    Route::post('/cart/total/{itemId}', [CartController::class, 'getTotal']);
+    // menghitung biaya cart yang diceklis
+    Route::post('/cart/total/{itemId}', [CartController::class, 'updateStatus']);
+
+    // data pengguna login saja
     Route::get('/detail', [UserController::class, 'getUser']);
+
+    // membuat pesanan
     Route::post('/order/checkout', [OrderDetailController::class, 'store']);
-    Route::get('/see', [OrderDetailController::class, 'see']);
+
+    // data order pengguna login saja
+    Route::get('/order/see', [OrderDetailController::class, 'see']);
+    
+    //logout
     Route::post('/logout', [AuthController::class, 'logout']);
+
     Route::apiResource('/review', App\Http\Controllers\Api\ReviewController::class);
-    Route::apiResource('/shipping', App\Http\Controllers\Api\ShippingControllers::class);
     Route::apiResource('/likes', App\Http\Controllers\Api\LikeController::class);
     Route::apiResource('/carts', App\Http\Controllers\Api\CartController::class);
-    Route::put('/order/status/{orderId}', [OrderDetailController::class, 'updateStatus']);
-    Route::put('/shipping/status/{shippingId}', [ShippingControllers::class, 'updateStatus']);
 });
 
 Route::middleware(['auth:sanctum', IsCustomer::class])->group(function () {

@@ -12,16 +12,10 @@ use Carbon\Carbon;
 
 class ShippingControllers extends Controller
 {
+    // admin
     public function index()
     {
-        // Mendapatkan ID pengguna yang sedang login
-        $userId = auth()->id();
-
-        // Mengambil data shipping hanya untuk user yang sedang login
-        $data = Shipping::whereHas('order', function ($query) use ($userId) {
-            $query->where('user_id', $userId);
-        })->with('order')->get();
-
+        $data = Shipping::latest()->get();
         return new MasterResource(true, 'List Data Pengiriman', $data);
     }
 
@@ -74,20 +68,8 @@ class ShippingControllers extends Controller
         return new MasterResource(true, 'Alamat Pengiriman berhasil diubah!', $data);
     }
 
-    public function updateStatus(Request $request, string $shippingId)
+    public function updateStatusPengiriman (string $shippingId)
     {
-        // Validasi status
-        $validStatuses = [
-            'disiapkan',
-            'dalam perjalanan',
-            'sudah sampai'
-        ];
-
-        // Cek apakah status valid
-        if (!in_array($request->input('status'), $validStatuses)) {
-            return response()->json(['error' => 'Status tidak valid'], 422);
-        }
-
         // Temukan shipping berdasarkan ID
         $shipping = Shipping::find($shippingId);
         if (!$shipping) {
@@ -95,7 +77,21 @@ class ShippingControllers extends Controller
         }
 
         // Update status shipping
-        $shipping->update(['shipping_status' => $request->input('status')]);
+        $shipping->update(['shipping_status' => 'dalam perjalanan']);
+
+        return response()->json(['message' => 'Status shipping berhasil diperbarui', 'status' => $shipping->shipping_status]);
+    }
+
+    public function updateStatusSampai (string $shippingId)
+    {
+        // Temukan shipping berdasarkan ID
+        $shipping = Shipping::find($shippingId);
+        if (!$shipping) {
+            return response()->json(['error' => 'Shipping tidak ditemukan'], 404);
+        }
+
+        // Update status shipping
+        $shipping->update(['shipping_status' => 'sudah sampai']);
 
         return response()->json(['message' => 'Status shipping berhasil diperbarui', 'status' => $shipping->shipping_status]);
     }
@@ -128,5 +124,23 @@ class ShippingControllers extends Controller
         }
 
         return response()->json($shipping);
+    }
+
+    public function status()
+    {
+        $shipping = Shipping::whereIn('status', ['disiapkan', 'dalam perjalanan'])
+                            ->latest()
+                            ->get();
+
+        $shippingDone = Shipping::where('status', 'sudah sampai')
+                            ->latest()
+                            ->get();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Data',
+            'pengiriman' => $shipping,
+            'pengiriman_sampai' => $shippingDone,
+        ]);
     }
 }

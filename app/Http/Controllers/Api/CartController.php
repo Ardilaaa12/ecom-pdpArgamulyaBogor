@@ -21,6 +21,10 @@ class CartController extends Controller
         // Mengambil ID pengguna yang sedang login
         $userId = Auth::id();
 
+        CartItem::whereHas('cart', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })->update(['status' => false]);
+
         // Mengambil data cart yang terkait dengan pengguna dan memuat relasi cartItems
         $cart = Cart::where('user_id', $userId)
                     ->with(['cartItems.product'])
@@ -38,7 +42,7 @@ class CartController extends Controller
     }
 
     // customer
-    public function getTotal(Request $request, $itemId)
+    public function updateStatus(Request $request, $itemId)
     {
         // Memastikan status ada di dalam request
         if (!$request->has('status')) {
@@ -57,21 +61,32 @@ class CartController extends Controller
         // Update status item
         $cartItem->update(['status' => $request->status]);
 
-        // Ambil cart dan total
+        return $this->getTotal();
+    }
+
+    function getTotal()
+    {
         $cart = Cart::where('user_id', auth()->id())
                     ->with(['cartItems.product'])
                     ->first(); // Mengambil hanya satu cart
-
+    
+        if (!$cart) {
+            return 0;
+        }
+    
         // Menghitung total dari item dengan `status` bernilai `true`
         $total = $cart->cartItems
                     ->filter(fn($item) => $item->status)
                     ->sum(fn($item) => floatval($item->product->price) * $item->quantity);
+    
+        // return $total;
 
         return response()->json([
-            'message' => 'Item status updated',
+            'message' => 'Berhasil diubah!',
             'total' => $total,
         ]);
     }
+    
 
 
     public function store(Request $request)
@@ -189,7 +204,9 @@ class CartController extends Controller
             'quantity' => $request->quantity,
         ]);
 
-        return new MasterResource(true, 'Data cart item berhasil di update', $cartItem);
+        $cartItem->fresh();
+
+        return $this->getTotal();
     }
 
     /**

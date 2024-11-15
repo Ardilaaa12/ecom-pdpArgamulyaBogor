@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->integer('user_id');
             $table->integer('product_id');
-            $table->string('image');
-            $table->string('description');
+            $table->string('image', 100);
+            $table->string('description', 200);
             $table->dateTime('review_date');
             $table->integer('amount_like');
             $table->integer('rate');

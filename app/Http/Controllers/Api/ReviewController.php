@@ -15,26 +15,16 @@ use Carbon\Carbon;
 
 class ReviewController extends Controller
 {
-    // admin
-   public function index()
-   {
-        $userId = Auth::id();
-
-        $data = Review::where('user_id', $userId)
-                        ->with(['user', 'product'])
-                        ->get();
-        // $data = Review::with(['user', 'product'])->get();    
-        return new MasterResource(true, 'List Data Review', $data);
-   }
-
-   public function see()
-   {
+    // admin + customer
+    public function index()
+    {
         $data = Review::with(['user', 'product'])->get();
         return new MasterResource(true, 'List Data  Review', $data);
-   }
+    }
 
-   public function store(Request $request)
-   {
+    // customer
+    public function store(Request $request)
+    {
         // validasi
         $validator = Validator::make($request->all(), [
             'user_id'       => 'required|exists:users,id',
@@ -68,21 +58,20 @@ class ReviewController extends Controller
             'rate'          => $request->rate,
         ]);
 
-        return new MasterResource(true, 'Review Berhaisl Ditambahkan!', $data);
-        
-   }
+        return new MasterResource(true, 'Review Berhaisl Ditambahkan!', $data);    
+    }
 
-   public function show($id)
-   {
+    public function show($id)
+    {
         // nyari data
         $id = Review::find($id);
         
         // mengembalikan data
         return new MasterResource(true, "Detail Review", $id);
-   }
+    }
 
-   public function update(Request $request, $id)
-   {
+    public function update(Request $request, $id)
+    {
         $validator = Validator::make($request->all(), [
             'user_id'       => 'required|exists:users,id',
             'product_id'    => 'required|exists:products,id',
@@ -126,14 +115,14 @@ class ReviewController extends Controller
         }
 
         return new MasterResource(true, 'Review Berhasil Diubah!', $data);
-   }
+    }
 
-   public function destroy($id)
-   {
+    public function destroy($id)
+    {
         $data = Review::find($id);
         Storage::delete('public/review/'.basename($data->image));
         $data->delete();
 
         return new MasterResource(true, 'Review Berhasil dihapus!', null);
-   }
+    }
 }

@@ -16,8 +16,8 @@ return new class extends Migration
             $table->integer('order_id');
             $table->integer('product_id');
             $table->integer('quantity');
-            $table->integer('price_unit');
-            $table->integer('sub_total');
+            $table->string('price_unit', 20);
+            $table->string('sub_total', 20);
             $table->timestamps();
             $table->softDeletes();
         });

@@ -14,16 +14,16 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->integer('user_id');
-            $table->uuid('no_ref_order')->unique();
+            $table->string('no_ref_order', 20)->unique();
             $table->dateTime('order_date');
-            $table->decimal('total_amount', 20, 2)->default(0);
+            $table->string('total_amount', 20)->default(0);
             $table->enum('status', [
                         'menunggu pembayaran',
                         'verifikasi pembayaran',
                         'gagal',
                         'berhasil'
             ])->default('menunggu pembayaran');
-            $table->string('notes')->nullable();
+            $table->string('notes', 100)->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
