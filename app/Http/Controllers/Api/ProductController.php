@@ -36,9 +36,12 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+
+        \Log::info('input category_id:', $request->all());
+
         // Validasi input
         $validator = Validator::make($request->all(), [
-            'category_id' => 'required',
+            'category_id' => 'required|numeric',
             'name_product' => 'required',
             'description' => 'required',
             'price' => 'required|numeric',
@@ -64,7 +67,7 @@ class ProductController extends Controller
             'category_id' => $request->category_id,
             'name_product' => $request->name_product,
             'description' => $request->description,
-            'price' => number_format($request->price),
+            'price' => $request->price,
             'stock' => $request->stock,
             'photo_product' => $photoProductUrl, // Simpan URL gambar
         ]);
@@ -162,4 +165,27 @@ class ProductController extends Controller
 
         return new MasterResource(true, 'Data user berhasil dihapus', null);
     }
+
+    public function search(Request $request) 
+    {
+        $query = $request->input('query');
+        
+        // Periksa apakah query memiliki nilai sebelum dijalankan
+        if (!$query) {
+            return response()->json(['message' => 'Query tidak ditemukan'], 400);
+        }
+
+        $products = Product::where('name_product', 'LIKE', "%{$query}%")
+            ->orWhere('description', 'LIKE', "%{$query}%")
+            ->orWhere('price', $query)
+            ->get();
+
+        // Jika data tidak ditemukan, beri response yang sesuai
+        if ($products->isEmpty()) {
+            return response()->json(['message' => 'Produk tidak ditemukan'], 404);
+        }
+
+        return response()->json($products);
+    }
+
 }

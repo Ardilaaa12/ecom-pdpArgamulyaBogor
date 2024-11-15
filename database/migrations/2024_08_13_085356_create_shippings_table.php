@@ -14,9 +14,14 @@ return new class extends Migration
         Schema::create('shippings', function (Blueprint $table) {
             $table->id();
             $table->integer('order_id');
-            $table->dateTime('shipping_date');
-            $table->string('shipping_address');
-            $table->string('shipping_status');
+            $table->dateTime('shipping_date')->nullable();
+            $table->string('shipping_address', 150);
+            $table->enum('shipping_status', [
+                '-',
+                'disiapkan',
+                'dalam perjalanan',
+                'sudah sampai'
+            ])->default('-');
             $table->timestamps();
             $table->softDeletes();
         });

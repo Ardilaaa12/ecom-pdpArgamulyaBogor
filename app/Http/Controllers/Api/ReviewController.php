@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\MasterResource;
 use Illuminate\Support\Facades\DB;
 // untuk format waktu
@@ -14,17 +15,18 @@ use Carbon\Carbon;
 
 class ReviewController extends Controller
 {
-   public function index()
-   {
-        $data = Review::with('user')->get();    
-        return new MasterResource(true, 'List Data Review', $data);
-   }
+    // admin + customer
+    public function index()
+    {
+        $data = Review::with(['user', 'product'])->get();
+        return new MasterResource(true, 'List Data  Review', $data);
+    }
 
-   public function store(Request $request)
-   {
+    // customer
+    public function store(Request $request)
+    {
         // validasi
         $validator = Validator::make($request->all(), [
-            'user_id'       => 'required|exists:users,id',
             'product_id'    => 'required|exists:products,id',
             'image'         => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'description'   => 'required',
@@ -46,7 +48,7 @@ class ReviewController extends Controller
 
         // tambah data
         $data = Review::create([
-            'user_id'       => $request->user_id,
+            'user_id'       => auth()->id(),
             'product_id'    => $request->product_id,
             'image'         => $imageUrl,
             'description'   => $request->description,
@@ -55,23 +57,21 @@ class ReviewController extends Controller
             'rate'          => $request->rate,
         ]);
 
-        return new MasterResource(true, 'Review Berhaisl Ditambahkan!', $data);
-        
-   }
+        return new MasterResource(true, 'Review Berhaisl Ditambahkan!', $data);    
+    }
 
-   public function show($id)
-   {
+    public function show($id)
+    {
         // nyari data
         $id = Review::find($id);
         
         // mengembalikan data
         return new MasterResource(true, "Detail Review", $id);
-   }
+    }
 
-   public function update(Request $request, $id)
-   {
+    public function update(Request $request, $id)
+    {
         $validator = Validator::make($request->all(), [
-            'user_id'       => 'required|exists:users,id',
             'product_id'    => 'required|exists:products,id',
             'description'   => 'required',
             'rate'          => 'required|integer|in:1,2,3,4,5',
@@ -97,7 +97,6 @@ class ReviewController extends Controller
 
             // update data
             $data->update([
-                'user_id'       => $request->user_id,
                 'product_id'    => $request->product_id,
                 'image'         => $imageUrl,
                 'description'   => $request->description,
@@ -105,7 +104,6 @@ class ReviewController extends Controller
             ]);
         } else {
             $data->update([
-                'user_id'       => $request->user_id,
                 'product_id'    => $request->product_id,
                 'description'   => $request->description,
                 'rate'          => $request->rate,
@@ -113,14 +111,14 @@ class ReviewController extends Controller
         }
 
         return new MasterResource(true, 'Review Berhasil Diubah!', $data);
-   }
+    }
 
-   public function destroy($id)
-   {
+    public function destroy($id)
+    {
         $data = Review::find($id);
         Storage::delete('public/review/'.basename($data->image));
         $data->delete();
 
         return new MasterResource(true, 'Review Berhasil dihapus!', null);
-   }
+    }
 }

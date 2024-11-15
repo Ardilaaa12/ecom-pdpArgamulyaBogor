@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::create('contents', function (Blueprint $table) {
             $table->id();
             $table->integer('section_id');
-            $table->string('title');
-            $table->string('description');
-            $table->string('media');
+            $table->string('title', 100);
+            $table->string('description', 225);
+            $table->string('media', 100);
             $table->enum('status', ['active', 'nonActive']);
-            $table->string('type');
+            $table->string('type', 100);
             $table->timestamps();
             $table->softDeletes();
         });

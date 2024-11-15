@@ -99,7 +99,7 @@ class UserController extends Controller
         return new MasterResource(true, 'Detail data user', $user);
     }
 
-    // ngambil data yang login saja
+    // customer
     public function getUser(Request $request)
     {
         $user = Auth::user();
@@ -119,79 +119,76 @@ class UserController extends Controller
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+    // Admin & Customer
     public function update(Request $request, string $id)
     {
-        // find post by ID
         $user = User::findOrFail($id);
-
-        // ambil email lama
         $oldEmail = $user->email;
 
+        // Tambahkan log untuk memeriksa input
+        // \Log::info('Input image:', $request->all());
+
+        // Validasi input
         $validator = Validator::make($request->all(), [
-            'username' => 'required',
-            'email' => 'required|email', //validasi apakah bentunya email
-            'password' => 'required|min:8',
+            'username' => 'nullable',
+            'email' => 'nullable|email|unique:users,email,' . $id, // Validasi unik kecuali untuk user yang sedang diperbarui
+            'password' => 'nullable|min:8',
             'fullname' => 'nullable|string',
             'address' => 'nullable',
-            'phone_number' => 'nullable|numeric',
+            'phone_number' => 'nullable',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,svg,gif|max:2048',
         ]);
 
-        if ($request->email === $oldEmail) {
-
-            $email = $request->email;
-            
-        } else {
-            $validator = Validator::make($request->all(), [
-                'email' => 'required|email|unique:users,email', // Validasi untuk email unik
-            ]);
-            $email = $request->email;
-        }
-
-        if($validator->fails()) {
+        if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
-        if($request->hasFile('image')) {
-            // upload image 
+        // Mengisi data yang akan diupdate, tetap menggunakan nilai lama jika tidak diisi di request
+        $dataToUpdate = [
+            'username' => $request->username ?? $user->username,
+            'fullname' => $request->fullname ?? $user->fullname,
+            'address' => $request->address ?? $user->address,
+            'phone_number' => $request->phone_number ?? $user->phone_number,
+            'role' => $user->role,
+        ];
+
+        // Cek jika email diubah
+        if ($request->email && $request->email !== $oldEmail) {
+            $dataToUpdate['email'] = $request->email;
+        }
+
+        // Cek jika password diubah
+        if ($request->password) {
+            $dataToUpdate['password'] = Hash::make($request['password']);
+        }
+
+        // Cek jika ada file gambar
+        if ($request->hasFile('image')) {
+            // Upload image 
             $image = $request->file('image');
             $imageName = $image->hashName();
             $image->storeAs('public/user', $imageName);
-    
-            $imageUrl = asset('/storage/user/' . $imageName); // URL yang benar
+            $imageUrl = asset('/storage/user/' . $imageName);
 
-            // delete old image
-            Storage::delete('public/user/' .basename($user->image));
+            // Hapus gambar lama
+            if ($user->image) {
+                Storage::delete('public/user/' . basename($user->image));
+            }
 
-            // upload user with new image 
-            $user->update([
-                'username' => $request->username,
-                'email' => $email,
-                'password' => Hash::make($request['password']),
-                'fullname' => $request->fullname,
-                'address' => $request->address,
-                'phone_number' => $request->phone_number,
-                'image' => $imageUrl,
-                'role' => $user->role,
-            ]);
-        } else {
-            // update user without image 
-            $user->update([
-                'username' => $request->username,
-                'email' => $request->email,
-                'password' => Hash::make($request['password']),
-                'fullname' => $request->fullname,
-                'address' => $request->address,
-                'phone_number' => $request->phone_number,
-                'role' => $user->role,
-            ]);
+            $dataToUpdate['image'] = $imageUrl;
         }
+
+        // Update user dengan data yang sudah disiapkan
+        $user->update($dataToUpdate);
+
+        \Log::info('Data yang akan diupdate:', $dataToUpdate);
+
 
         return new MasterResource(true, 'Data user berhasil diubah!', $user);
     }
+
+
+
 
     /**
      * Remove the specified resource from storage.
@@ -205,5 +202,27 @@ class UserController extends Controller
         $user->delete();
 
         return new MasterResource(true, 'Data user berhasil dihapus', null);
+    }
+
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
+
+        if (!$query) {
+            return response()->json(['message' => 'Query tidak ditemukan'], 400);
+        }
+
+        $user = User::where('username', 'LIKE', "%{$query}%")
+                    ->orWhere('fullname', 'LIKE', "%{$query}%")
+                    ->orWhere('email', 'LIKE', "%{$query}%")
+                    ->orWhere('address', 'LIKE', "%{$query}%")
+                    ->orWhere('phone_number', 'LIKE', "%{$query}%")
+                    ->get();
+
+        if ($user->isEmpty()) {
+            return response()->json(['message' => 'Data tidak ditemukan'], 400);
+        }
+
+        return response()->json($user);
     }
 }

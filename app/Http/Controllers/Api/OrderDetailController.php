@@ -9,6 +9,10 @@ use App\Models\CartItem;
 use App\Models\Like;
 use App\Models\LikeItem;
 use App\Models\Product;
+use App\Models\User;
+use App\Models\Shipping;
+use App\Models\Payment;
+use App\Models\Rekening;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -20,18 +24,49 @@ use Illuminate\Validation\Validator as ValidationValidator;
 
 class OrderDetailController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    //  role admin (all)
     public function index()
     {
-        $OrderDetail = OrderDetail::all()->map(function ($order) {
-            $order->price_unit = number_format($order->price_unit, 0, ',', '.');
-            $order->sub_total = number_format($order->sub_total, 0, ',', '.');
-            return $order; // Kembalikan objek yang telah dimodifikasi
+        $orders = Order::with(['user', 'orderDetail.product'])->get()->map(function ($order) {
+            $order->total_amount = number_format(floatval($order->total_amount), 0, ',', '.');
+            $order->orderDetail->map(function ($orderDetail) {
+
+                $orderDetail->price_unit = number_format(floatval($orderDetail->price_unit), 0, ',', '.');
+                $orderDetail->sub_total = number_format(floatval($orderDetail->sub_total), 0, ',', '.');
+    
+                $orderDetail->product->price = number_format(floatval($orderDetail->product->price), 0, ',', '.');
+    
+                return $orderDetail;
+            });
+    
+            return $order;
         });
     
-        return new MasterResource(true, "List data yang ada di Order Detail", $OrderDetail);
+        return new MasterResource(true, "List data yang ada di Order Detail", $orders);
+    }
+    
+    
+
+    // role user (login sj)
+    public function see()
+    {
+        $order = Order::with(['orderDetail.product','user'])
+            ->whereHas('user', function ($query) {
+                $query->where('id', auth()->user()->id);
+            })
+            ->get()
+            ->map(function ($order) {
+                // Looping melalui setiap orderDetail karena bisa ada lebih dari satu
+                $order->orderDetail->each(function ($orderDetail) {
+                    $orderDetail->price_unit = number_format($orderDetail->price_unit, 0, ',', '.');
+                    $orderDetail->sub_total = number_format($orderDetail->sub_total, 0, ',', '.');
+                });
+
+                return $order;
+            });
+
+        return new MasterResource(true, "List data yang ada di Order Detail", $order);
+
     }
     
 
@@ -48,9 +83,9 @@ class OrderDetailController extends Controller
      */
 
     public function generateRefOrder() {
-        // mengambil order terakhir berdasarkan id untuk memastikan nomor berikutnya 
+        // mengambil id dari order terakhir
         $latestOrder = Order::latest('id')->first(); //mengambil order dengan ID terbesar 
-        $number = $latestOrder ? $latestOrder->id + 1 : 1; //jika ada order terakhir, ambil ID dan tambahkan 1, jika tidak ada maka mulai dari 1 
+        $number = $latestOrder ? $latestOrder->id + 1 : 1;
 
         // membuat nomor referensi order dengan format REF-00001
         return 'REF-' . str_pad($number, 5, '0', STR_PAD_LEFT);
@@ -58,34 +93,33 @@ class OrderDetailController extends Controller
 
     public function store(Request $request) 
     {
-        $source = $request->input('source');
         $user = Auth::user();
+        $cart = Cart::where('user_id', $user->id)->first();
 
-        if ($source === 'direct') {
-            $productId = $request->input('product_id'); // Ambil ID produk dari request
-            $quantity = $request->input('quantity'); // Ambil jumlah dari request
-    
-            return $this->checkoutDirectly($user, $productId, $quantity);
-        }
+        $selectedItems = CartItem::where('cart_id', $cart->id)
+                                ->where('status', 1)
+                                ->pluck('product_id')
+                                ->toArray();
 
-        $selectedItems = $request->input('selected_items');
+        $shippingDate = $request->input('shipping_date');
+        $address = $request->input('address');
+        $paymentMethod = $request->input('payment_method');
+        $notes = $request->input('notes');
         
         if (empty($selectedItems)) {
-            return response()->json(['message' => 'No items selected for checkout'], 400);
+            return response()->json(['message' => 'Tidak ada item yang dipilih'], 400);
         }
 
-        switch ($source) {
-            case 'cart':
-                return $this->checkoutFromCart($user, $selectedItems);
-
-            case 'likes':
-                return $this->checkoutFromLikes($user, $selectedItems);
-
-            default:
-                return response()->json(['message' => 'Invalid checkout source'], 400);
+        $payment = Rekening::where('id', $paymentMethod)->exists();
+        if (!$payment) {
+            return response()->json(['message' => 'Metode pembayaran tidak valid'], 400);
         }
+        
+        return $this->checkoutFromCart($user, $selectedItems, $shippingDate, $address, $paymentMethod, $notes);
+
     }
 
+<<<<<<< HEAD
     public function checkoutDirectly($user, $productId, $quantity)
     {
         // Temukan produk berdasarkan ID
@@ -128,6 +162,9 @@ class OrderDetailController extends Controller
     }
 
     public function checkoutFromCart($user, $selectedItems)
+=======
+    public function checkoutFromCart($user, $selectedItems, $shippingDate, $address, $paymentMethod, $notes)
+>>>>>>> d9a5499fbd9d0f26488be66e05e193b2178f3bd5
     {
         $totalPrice = 0;
         $cart = Cart::where('user_id', $user->id)->first();
@@ -159,7 +196,7 @@ class OrderDetailController extends Controller
         }
 
         if ($totalPrice == 0) {
-            return response()->json(['message' => 'No valid items selected'], 400);
+            return response()->json(['message' => 'Barang tidak ada di cart!'], 400);
         }
 
         // Buat order
@@ -169,6 +206,20 @@ class OrderDetailController extends Controller
             'total_amount' => $totalPrice,
             'order_date' => Carbon::now('Asia/Jakarta')->format('Y-m-d H:i:s'),
             'status' => 'menunggu pembayaran',
+            'notes' => $notes ?? '-',
+        ]);
+
+        $shippingAddress = !empty($address) ? $address : $user->address;
+
+        Shipping::create([
+            'order_id' => $order->id,
+            'shipping_date' => $shippingDate,
+            'shipping_address' => $shippingAddress,
+        ]);
+
+        Payment::create([
+            'order_id' => $order->id,
+            'payment_master_id' => $paymentMethod,
         ]);
 
         // Simpan detail order
@@ -196,191 +247,84 @@ class OrderDetailController extends Controller
         CartItem::where('cart_id', $cart->id)->whereIn('product_id', $selectedItems)->delete();
 
         return response()->json(['message' => 'Order created successfully'], 200);
+        // return new MasterResource(true, "List data yang ada di Order Detail", $notes);
     }
 
-    public function checkoutFromLikes($user, $selectedItems)
+    public function updateStatusBerhasil(string $id)
     {
-        $totalPrice = 0;
-        $like = Like::where('user_id', $user->id)->first();
-
-        // Proses item yang dipilih dari like
-        foreach ($selectedItems as $productId) {
-            $likeItem = LikeItem::where('like_id', $like->id)->where('product_id', $productId)->first();
-            if ($likeItem) {
-                $product = Product::find($likeItem->product_id);
-
-                if ($likeItem->quantity < 0) {
-                    return response()->json([
-                        'message' => 'Jumlah untuk produk: ' . $product->name_product . ' tidak bisa negatif.'
-                    ], 400);
-                }
-        
-                // Pengecekan stok produk
-                if ($likeItem->quantity > $product->stock) {
-                    return response()->json([
-                        'message' => 'Kekurangan stock pada produk: ' . $product->name_product
-                    ], 400);
-                }
-
-                $price = (int) str_replace(',', '', $product->price);
-                $subtotal = $price * $likeItem->quantity;
-                $totalPrice += $subtotal;
-            }
+        // Temukan order_detail berdasarkan ID
+        $orderDetail = OrderDetail::find($id);
+        if (!$orderDetail) {
+            return response()->json(['error' => 'Order detail tidak ditemukan'], 404);
         }
 
-        if ($totalPrice == 0) {
-            return response()->json(['message' => 'No valid items selected'], 400);
+        // Cari order berdasarkan kolom order_id di order_detail
+        $order = Order::find($orderDetail->order_id);
+        if (!$order) {
+            return response()->json(['error' => 'Order tidak ditemukan untuk order detail ini'], 404);
         }
 
-        // Buat order
-        $order = Order::create([
-            'user_id' => $user->id,
-            'no_ref_order' => $this->generateRefOrder(),
-            'total_amount' => $totalPrice,
-            'order_date' => Carbon::now('Asia/Jakarta')->format('Y-m-d H:i:s'),
-            'status' => 'menunggu pembayaran',
+        // Update status order menjadi 'berhasil'
+        $order->update(['status' => 'berhasil']);
+
+        // Cek dan update status pengiriman jika ada data di tabel shipping
+        $shipping = Shipping::where('order_id', $order->id)->first();
+        if ($shipping) {
+            $shipping->update(['shipping_status' => 'disiapkan']);
+        }
+
+        return response()->json([
+            'message' => 'Status order berhasil diperbarui',
+            'status' => $order->status,
         ]);
-
-        // Simpan detail order
-        foreach ($selectedItems as $productId) {
-            $likeItem = LikeItem::where('like_id', $like->id)->where('product_id', $productId)->first();
-            if ($likeItem) {
-                $product = Product::find($likeItem->product_id);
-                $price = (int) str_replace(',', '', $product->price);
-                
-                OrderDetail::create([
-                    'order_id' => $order->id,
-                    'product_id' => $product->id,
-                    'quantity' => $likeItem->quantity,
-                    'price_unit' => $price,
-                    'sub_total' => $price * $likeItem->quantity,
-                ]);
-
-                // Kurangi stok produk
-                $product->stock -= $likeItem->quantity;
-                $product->save();
-            }
-        }
-
-        // Kosongkan item yang dipilih dari cart
-        LikeItem::where('like_id', $like->id)->whereIn('product_id', $selectedItems)->delete();
-
-        return response()->json(['message' => 'Order created successfully'], 200);
     }
 
-    /**
-     * Display the specified resource.
-     */
+
+
+    public function updateStatusGagal(string $id)
+    {
+        // Temukan order_detail berdasarkan ID
+        $orderDetail = OrderDetail::find($id);
+        if (!$orderDetail) {
+            return response()->json(['error' => 'Order detail tidak ditemukan'], 404);
+        }
+
+        // Cari order berdasarkan kolom order_id di order_detail
+        $order = Order::find($orderDetail->order_id);
+        if (!$order) {
+            return response()->json(['error' => 'Order tidak ditemukan untuk order detail ini'], 404);
+        }
+
+        // Update status order menjadi 'berhasil'
+        $order->update(['status' => 'gagal']);
+
+        // Cek dan update status pengiriman jika ada data di tabel shipping
+        $shipping = Shipping::where('order_id', $order->id)->first();
+        if ($shipping) {
+            $shipping->update(['shipping_status' => '-']);
+        }
+
+        return response()->json([
+            'message' => 'Status order berhasil diperbarui',
+            'status' => $order->status,
+        ]);
+    }
+
+
+    // function untuk admin
     public function show(string $id)
     {
-        //
+        // Mencari order berdasarkan ID
+        $orders = Order::with(['user', 'orderDetail.product'])->find($id);
+        
+        // Memeriksa apakah order detail ditemukan
+        if ($orders) {
+            return response()->json($orders, 200);
+        } else {
+            return response()->json(['message' => 'Order detail tidak ditemukan'], 404);
+        }
     }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    // public function update(Request $request, string $id)
-    // {
-    //     DB::beginTransaction();
     
-    //     try {
-    //         // Ambil order berdasarkan ID yang akan di-update
-    //         $order = Order::findOrFail($id);
-    
-    //         // Update data order
-    //         $order->update([
-    //             'user_id' => $request->user_id,
-    //             'no_ref_order' => $this->generateRefOrder(), // Fungsi untuk membuat nomor referensi
-    //             'order_date' => now(),
-    //             'status' => 'menunggu pembayaran',
-    //         ]);
-    
-    //         // Menghitung total amount
-    //         $total_amount = 0;
-    
-    //         // array untuk menyimpan stok produk yang akan dikembalikan jika terjadi error
-    //         $updateStokProduct = [];
-    
-    //         // Looping untuk setiap order detail
-    //         foreach ($request->order_details as $detail) {
-    //             // Dapatkan data produk berdasarkan product_id
-    //             $product = Product::findOrFail($detail['product_id']);
-    
-    //             // Validasi apakah quantity adalah angka
-    //             $quantity = (int) $detail['quantity'];
-    //             $price_unit = (float) $product->price;
-    
-    //             if (!is_numeric($quantity) || $quantity <= 0) {
-    //                 return response()->json(['error' => 'Quantity harus berupa angka yang valid dan lebih dari 0'], 400);
-    //             }
-    
-    //             // Update atau buat entri di tabel OrderDetail
-    //             OrderDetail::updateOrCreate(
-    //                 [
-    //                     'order_id' => $order->id,
-    //                     'product_id' => $product->id,
-    //                 ],
-    //                 [
-    //                     'quantity' => $quantity,
-    //                     'price_unit' => $price_unit,
-    //                     'sub_total' => $quantity * $price_unit,
-    //                 ]
-    //             );
-    
-    //             // Mengurangi stok produk
-    //             if ($product->stock < $quantity) {
-    //                 throw new \Exception('Stok produk tidak mencukupi');
-    //             }
-    //             $product->stock -= $quantity;
-    //             $product->save();
-    
-    //             // Menyimpan perubahan stok ke dalam array untuk rollback jika terjadi error
-    //             $updateStokProduct[] = [
-    //                 'product' => $product,
-    //                 'quantity' => $quantity
-    //             ];
-    
-    //             // Menambahkan ke total amount
-    //             $total_amount += $quantity * $price_unit;
-    //         }
-    
-    //         // Memperbarui total amount pada order
-    //         $order->update([
-    //             'total_amount' => $total_amount
-    //         ]);
-    
-    //         // Commit transaksi jika tidak ada error
-    //         DB::commit();
-    
-    //         return new MasterResource(true, 'Order berhasil diproses dengan baik', $order);
-    
-    //     } catch (\Exception $e) {
-    //         // Rollback transaksi jika terjadi error
-    //         DB::rollBack();
-    
-    //         // Mengembalikan stok produk jika terjadi error
-    //         foreach ($updateStokProduct as $item) {
-    //             $product = $item['product'];
-    //             $product->stock += $item['quantity'];
-    //             $product->save();
-    //         }
-    
-    //         return response()->json(['error' => $e->getMessage()], 500);
-    //     }
-    // }
-    
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
         DB::beginTransaction();
@@ -404,12 +348,4 @@ class OrderDetailController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
-
-    // public function cancleOrder() {
-    //     DB::beginTransaction();
-
-    //     try {
-    //         $order = Order::with
-    //     }
-    // }
 }

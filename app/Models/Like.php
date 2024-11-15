@@ -17,7 +17,7 @@ class Like extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function likeItem() {
+    public function likeItems() {
         return $this->hasMany(LikeItem::class);
     }
 }

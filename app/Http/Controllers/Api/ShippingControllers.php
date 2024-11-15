@@ -7,16 +7,18 @@ use App\Http\Resources\MasterResource;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class ShippingControllers extends Controller
 {
+    // admin
     public function index()
     {
-        $data = Shipping::with('order')->get();
+        $data = Shipping::latest()->get();
         return new MasterResource(true, 'List Data Pengiriman', $data);
-
     }
+
 
     public function store(Request $request)
     {
@@ -66,11 +68,79 @@ class ShippingControllers extends Controller
         return new MasterResource(true, 'Alamat Pengiriman berhasil diubah!', $data);
     }
 
+    public function updateStatusPengiriman (string $shippingId)
+    {
+        // Temukan shipping berdasarkan ID
+        $shipping = Shipping::find($shippingId);
+        if (!$shipping) {
+            return response()->json(['error' => 'Shipping tidak ditemukan'], 404);
+        }
+
+        // Update status shipping
+        $shipping->update(['shipping_status' => 'dalam perjalanan']);
+
+        return response()->json(['message' => 'Status shipping berhasil diperbarui', 'status' => $shipping->shipping_status]);
+    }
+
+    public function updateStatusSampai (string $shippingId)
+    {
+        // Temukan shipping berdasarkan ID
+        $shipping = Shipping::find($shippingId);
+        if (!$shipping) {
+            return response()->json(['error' => 'Shipping tidak ditemukan'], 404);
+        }
+
+        // Update status shipping
+        $shipping->update(['shipping_status' => 'sudah sampai']);
+
+        return response()->json(['message' => 'Status shipping berhasil diperbarui', 'status' => $shipping->shipping_status]);
+    }
+
     public function destroy($id)
     {
         $data = Shipping::find($id);
         $data->delete();
 
         return new MasterResource(true, 'Data Pengiriman berhasil di hapus!', null);
+    }
+
+    public function search(Request $request) 
+    {
+        $query = $request->input('query');
+        
+        // Periksa apakah query memiliki nilai sebelum dijalankan
+        if (!$query) {
+            return response()->json(['message' => 'Query tidak ditemukan'], 400);
+        }
+
+        $shipping = Shipping::where('shipping_date', 'LIKE', "%{$query}%")
+            ->orWhere('shipping_address', 'LIKE', "%{$query}%")
+            ->orWhere('shipping_status', 'LIKE', "%{$query}%")
+            ->get();
+
+        // Jika data tidak ditemukan, beri response yang sesuai
+        if ($shipping->isEmpty()) {
+            return response()->json(['message' => 'Data tidak ditemukan'], 404);
+        }
+
+        return response()->json($shipping);
+    }
+
+    public function status()
+    {
+        $shipping = Shipping::whereIn('status', ['disiapkan', 'dalam perjalanan'])
+                            ->latest()
+                            ->get();
+
+        $shippingDone = Shipping::where('status', 'sudah sampai')
+                            ->latest()
+                            ->get();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Data',
+            'pengiriman' => $shipping,
+            'pengiriman_sampai' => $shippingDone,
+        ]);
     }
 }

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->integer('cart_id');
             $table->integer('product_id');
             $table->integer('quantity');
+            $table->boolean('status')->default(false);
             $table->timestamps();
             $table->softDeletes();
         });

@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('navbars', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('route');
+            $table->string('name', 100);
+            $table->string('route', 150);
             $table->enum('status', ['active', 'nonActive']);
-            $table->string('type');
+            $table->string('type', 100);
             $table->timestamps();
             $table->softDeletes();
         });
