@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Shipping;
+use App\Models\Order;
 use App\Http\Resources\MasterResource;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -15,9 +16,10 @@ class ShippingControllers extends Controller
     // admin
     public function index()
     {
-        $data = Shipping::latest()->get();
-        return new MasterResource(true, 'List Data Pengiriman', $data);
+        $data = Order::with('shipping', 'user')->get();
+        return new MasterResource(true, 'List Data Order dengan Shipping', $data);
     }
+    
 
 
     public function store(Request $request)
