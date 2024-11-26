@@ -13,9 +13,7 @@ use Illuminate\Support\Facades\Validator;
 
 class CartController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // customer
     public function index(Request $request)
     {
         // Mengambil ID pengguna yang sedang login
