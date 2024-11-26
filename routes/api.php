@@ -72,6 +72,9 @@ Route::put('/order/statusGagal/{id}', [OrderDetailController::class, 'updateStat
 Route::put('/shipping/statusKirim/{shippingId}', [ShippingControllers::class, 'updateStatusPengiriman']);
 Route::put('/shipping/statusSampai/{shippingId}', [ShippingControllers::class, 'updateStatusSampai']);
 
+// Route export pdf (struk pembayaran)
+Route::get('/invoice/download/{orderId}', [PaymentController::class, 'generateInvoice']);
+
 // route yang sudah memiliki middleware
 Route::middleware(['auth:sanctum'])->group(function () {
     // menghitung biaya cart yang diceklis

@@ -22,7 +22,8 @@ class Payment extends Model
         return $this->belongsTo(Order::class);
     }
 
-    public function rekening() {
-        return $this->hasOne(Rekening::class);
+    public function rekening()
+    {
+        return $this->belongsTo(Rekening::class, 'payment_master_id'); // Payment mengacu pada Rekening
     }
 }

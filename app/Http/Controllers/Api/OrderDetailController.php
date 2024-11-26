@@ -119,52 +119,7 @@ class OrderDetailController extends Controller
 
     }
 
-<<<<<<< HEAD
-    public function checkoutDirectly($user, $productId, $quantity)
-    {
-        // Temukan produk berdasarkan ID
-        $product = Product::find($productId);
-        if (!$product) {
-            return response()->json(['message' => 'Product not found'], 404);
-        }
-
-        // Cek stok produk
-        if ($product->stock < $quantity) {
-            return response()->json(['message' => 'Stock tidak cukup. Silahkan mengurangi jumlah barang'], 400);
-        }
-
-        $price = (int) str_replace(',', '', $product->price);
-        $totalPrice = $price * $quantity;
-
-        // Buat order
-        $order = Order::create([
-            'user_id' => $user->id,
-            'no_ref_order' => $this->generateRefOrder(),
-            'total_amount' => $totalPrice,
-            'order_date' => now(),
-            'status' => 'menunggu pembayaran',
-        ]);
-
-        // Simpan detail order
-        OrderDetail::create([
-            'order_id' => $order->id,
-            'product_id' => $product->id,
-            'quantity' => $quantity,
-            'price_unit' => $price,
-            'sub_total' => $totalPrice,
-        ]);
-
-        // Kurangi stok produk
-        $product->stock -= $quantity;
-        $product->save();
-
-        return response()->json(['message' => 'Order created successfully', 'order_id' => $order->id], 201);
-    }
-
-    public function checkoutFromCart($user, $selectedItems)
-=======
     public function checkoutFromCart($user, $selectedItems, $shippingDate, $address, $paymentMethod, $notes)
->>>>>>> d9a5499fbd9d0f26488be66e05e193b2178f3bd5
     {
         $totalPrice = 0;
         $cart = Cart::where('user_id', $user->id)->first();

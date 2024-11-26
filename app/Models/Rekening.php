@@ -15,8 +15,9 @@ class Rekening extends Model
         'payment_master_image',
     ];
 
-    public function payment() {
-        return $this->belongsTo(Payment::class);
+    public function payments()
+    {
+        return $this->hasMany(Payment::class, 'payment_master_id'); // Relasi ke tabel payment
     }
 
     protected function image(): Attribute

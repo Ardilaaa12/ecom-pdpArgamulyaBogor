@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\MasterResource;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PaymentController extends Controller
 {
@@ -17,8 +18,51 @@ class PaymentController extends Controller
      */
     public function index()
     {
-        $payment = Payment::with(['order'], ['rekening'])->get();
-        return new MasterResource(true, 'List data yang ada di payment', $payment);
+        $payments = Payment::with('rekening')->get();
+        
+        // Kembalikan data pembayaran dan rekening terkait
+        return response()->json($payments);
+    }
+
+    public function generateInvoice($orderId)
+    {
+        // Mengambil data order beserta relasinya
+        $data = Order::with('user', 'orderDetail.product.category', 'payment.rekening')
+            ->where('id', $orderId)
+            ->first();
+
+        if (!$data) {
+            return response()->json(['message' => 'Order not found'], 404);
+        }
+
+        // Load view dan passing data
+        $pdf = Pdf::loadView('invoice', [
+            'order' => $data,
+            'customer' => $data->user,
+            'payment' => $data->payment,
+        ]);
+
+        // Mengunduh file PDF
+        $pdf->setPaper('a5', 'landscape');
+        $fileName = 'Invoice_Order_' . $orderId . '.pdf';
+        return $pdf->download($fileName);
+    }
+
+
+    public function show($id)
+    {
+        $data = Order::with('user', 'orderDetail.product.category', 'payment.rekening')
+            ->where('id', $id)
+            ->first();
+
+        if (!$data) {
+            return response()->json(['message' => 'Order not found'], 404);
+        }
+
+        // $pdf = Pdf::loadView('invoice', $data)->setPaper('a5', 'landscape');
+        // return $pdf->download('invoice.pdf');
+
+        return response()->json($data);
     }
 
     /**
@@ -73,10 +117,10 @@ class PaymentController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
-    {
-        //
-    }
+    // public function show(string $id)
+    // {
+    //     //
+    // }
 
     /**
      * Show the form for editing the specified resource.
