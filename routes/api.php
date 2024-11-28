@@ -64,10 +64,6 @@ Route::get('/order/status', [OrderController::class, 'status']);
 Route::get('/order/statusBerhasil', [OrderController::class, 'statusBerhasil']);
 Route::get('/order/statusGagal', [OrderController::class, 'statusGagal']);
 
-// ubah status order
-Route::put('/order/statusBerhasil/{id}', [OrderDetailController::class, 'updateStatusBerhasil']);
-Route::put('/order/statusGagal/{id}', [OrderDetailController::class, 'updateStatusGagal']);
-
 // ubah status pengiriman / shipping
 Route::put('/shipping/statusKirim/{shippingId}', [ShippingControllers::class, 'updateStatusPengiriman']);
 Route::put('/shipping/statusSampai/{shippingId}', [ShippingControllers::class, 'updateStatusSampai']);
@@ -77,6 +73,10 @@ Route::get('/invoice/download/{orderId}', [PaymentController::class, 'generateIn
 
 // route yang sudah memiliki middleware
 Route::middleware(['auth:sanctum'])->group(function () {
+    // ubah status order
+    Route::put('/order/statusBerhasil/{id}', [OrderDetailController::class, 'updateStatusBerhasil']);
+    Route::put('/order/statusGagal/{id}', [OrderDetailController::class, 'updateStatusGagal']);
+    
     // menghitung biaya cart yang diceklis
     Route::post('/cart/total/{itemId}', [CartController::class, 'updateStatus']);
 

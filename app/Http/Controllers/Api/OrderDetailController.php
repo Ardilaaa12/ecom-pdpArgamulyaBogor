@@ -94,6 +94,12 @@ class OrderDetailController extends Controller
     public function store(Request $request) 
     {
         $user = Auth::user();
+        if (empty($user->fullname) || empty($user->phone_number) || empty($user->address)) {
+            return response()->json([
+                'message' => 'Data user belum lengkap. Harap lengkapi nama lengkap, nomor telepon, dan alamat.'
+            ], 400);
+        }
+
         $cart = Cart::where('user_id', $user->id)->first();
 
         $selectedItems = CartItem::where('cart_id', $cart->id)
@@ -213,14 +219,20 @@ class OrderDetailController extends Controller
             return response()->json(['error' => 'Order detail tidak ditemukan'], 404);
         }
 
+        $user = Auth::user();
+        $name = $user->fullname;
+
         // Cari order berdasarkan kolom order_id di order_detail
         $order = Order::find($orderDetail->order_id);
         if (!$order) {
             return response()->json(['error' => 'Order tidak ditemukan untuk order detail ini'], 404);
         }
 
-        // Update status order menjadi 'berhasil'
-        $order->update(['status' => 'berhasil']);
+        // Update status order menjadi 'berhasil' dan set check_by dalam satu langkah
+        $order->update([
+            'status' => 'berhasil',  // Ubah status menjadi 'berhasil'
+            'check_by' => $name  // Set kolom check_by dengan ID pengguna yang sedang login
+        ]);
 
         // Cek dan update status pengiriman jika ada data di tabel shipping
         $shipping = Shipping::where('order_id', $order->id)->first();
@@ -244,14 +256,20 @@ class OrderDetailController extends Controller
             return response()->json(['error' => 'Order detail tidak ditemukan'], 404);
         }
 
+        $user = Auth::user();
+        $name = $user->fullname;
+
         // Cari order berdasarkan kolom order_id di order_detail
         $order = Order::find($orderDetail->order_id);
         if (!$order) {
             return response()->json(['error' => 'Order tidak ditemukan untuk order detail ini'], 404);
         }
 
-        // Update status order menjadi 'berhasil'
-        $order->update(['status' => 'gagal']);
+        // Update status order menjadi 'berhasil' dan set check_by dalam satu langkah
+        $order->update([
+            'status' => 'gagal',  // Ubah status menjadi 'berhasil'
+            'check_by' => $name  // Set kolom check_by dengan ID pengguna yang sedang login
+        ]);
 
         // Cek dan update status pengiriman jika ada data di tabel shipping
         $shipping = Shipping::where('order_id', $order->id)->first();

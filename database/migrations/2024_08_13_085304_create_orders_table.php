@@ -24,6 +24,7 @@ return new class extends Migration
                         'berhasil'
             ])->default('menunggu pembayaran');
             $table->string('notes', 100)->nullable();
+            $table->string('check_by',100)->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

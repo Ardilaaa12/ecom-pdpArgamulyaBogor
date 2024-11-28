@@ -136,7 +136,6 @@ class PaymentController extends Controller
     public function update(Request $request, string $id)
     {
         $validator = Validator::make($request->all(), [
-            'payment_master_id' => 'nullable|exists:rekenings,id',
             'payment_date' => 'required',
             'payment_amount' => 'required|numeric',
             'payment_image' => 'required|image|mimes:png,jpg,jpeg,svg',

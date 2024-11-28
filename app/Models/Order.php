@@ -18,6 +18,7 @@ class Order extends Model
         'total_amount',
         'status',
         'notes',
+        'check_by',
     ];
 
     // public static function boot() {
