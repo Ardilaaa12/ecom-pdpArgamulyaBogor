@@ -46,7 +46,7 @@ class ShippingControllers extends Controller
 
     public function show($id)
     {
-        $data = Shipping::with('order')->find($id);
+        $data = Order::with('shipping', 'user')->find($id);
 
         return new MasterResource(true, "Detail Pengiriman", $data);
     }
@@ -70,32 +70,56 @@ class ShippingControllers extends Controller
         return new MasterResource(true, 'Alamat Pengiriman berhasil diubah!', $data);
     }
 
-    public function updateStatusPengiriman (string $shippingId)
+    public function updateStatusPengiriman (string $id)
     {
         // Temukan shipping berdasarkan ID
-        $shipping = Shipping::find($shippingId);
-        if (!$shipping) {
-            return response()->json(['error' => 'Shipping tidak ditemukan'], 404);
+        $order = Order::find($id);
+        if (!$order) {
+            return response()->json(['error' => 'Order tidak ditemukan'], 404);
         }
 
+        $shipping = Shipping::where('order_id', $order->id)->first();        if (!$shipping) {
+            return response()->json(['error' => 'Data Shipping tidak ditemukan!'], 404);
+        }
+        
         // Update status shipping
         $shipping->update(['shipping_status' => 'dalam perjalanan']);
 
         return response()->json(['message' => 'Status shipping berhasil diperbarui', 'status' => $shipping->shipping_status]);
     }
 
-    public function updateStatusSampai (string $shippingId)
+    public function updateStatusSampai (string $id)
     {
-        // Temukan shipping berdasarkan ID
-        $shipping = Shipping::find($shippingId);
-        if (!$shipping) {
-            return response()->json(['error' => 'Shipping tidak ditemukan'], 404);
+        $order = Order::find($id);
+        if (!$order) {
+            return response()->json(['error' => 'Order tidak ditemukan'], 404);
+        }
+
+        $shipping = Shipping::where('order_id', $order->id)->first();        if (!$shipping) {
+            return response()->json(['error' => 'Data Shipping tidak ditemukan!'], 404);
         }
 
         // Update status shipping
         $shipping->update(['shipping_status' => 'sudah sampai']);
 
         return response()->json(['message' => 'Status shipping berhasil diperbarui', 'status' => $shipping->shipping_status]);
+    }
+
+    public function addShippingCost($id)
+    {
+        $validator = Validator::make($request->all(), [
+            'shipping_cost' => 'required|numeric',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        $data = Shipping::find($id);
+
+        // $data->update([
+        //     'shippinf_cost' => $request->shipping_cost;
+        // ])
     }
 
     public function destroy($id)

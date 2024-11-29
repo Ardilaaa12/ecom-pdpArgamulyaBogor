@@ -18,11 +18,12 @@ return new class extends Migration
             $table->dateTime('order_date');
             $table->string('total_amount', 20)->default(0);
             $table->enum('status', [
+                        'verifikasi pengiriman',
                         'menunggu pembayaran',
                         'verifikasi pembayaran',
                         'gagal',
                         'berhasil'
-            ])->default('menunggu pembayaran');
+            ])->default('verifikasi pengiriman');
             $table->string('notes', 100)->nullable();
             $table->string('check_by',100)->nullable();
             $table->timestamps();

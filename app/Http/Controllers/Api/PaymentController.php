@@ -72,56 +72,7 @@ class PaymentController extends Controller
     {
         //
     }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-
-    // public function store(Request $request)
-    // {
-    //     $validator = Validator::make($request->all(), [
-    //         'order_id' => 'required',
-    //         'payment_master_id' => 'required|exists:rekenings,id',
-    //         'payment_date' => 'required',
-    //         'payment_amount' => 'required|numeric',
-    //         'payment_image' => 'required|image:png,jpg,jpeg,svg',
-    //     ]);
-
-    //     if($validator->fails()) {
-    //         return response()->json($validator->errors(), 422);
-    //     }
-
-    //     $paymentImage = $request->file('payment_image');
-    //     $paymentImageName = $paymentImage->hashName();
-    //     $paymentImage->storeAs('public/payment', $paymentImageName);
-
-    //     $paymentImageUrl = asset('storage/payment/' . $paymentImageName);
-
-    //     $payment = Payment::create([
-    //         'order_id' => $request->order_id,
-    //         'payment_master_id' => $request->payment_master_id,
-    //         'payment_date' => $request->payment_date,
-    //         'payment_amount' => $request->payment_amount,
-    //         'payment_image' => $paymentImageUrl,
-    //     ]);
-
-    //     if($payment) {
-    //         return new MasterResource(true, 'Data user berhasil ditambahkan', $payment);
-    //     } else {
-    //      // Hapus file gambar jika penyimpanan data gagal
-    //      Storage::delete('public/payment/' . $paymentImageName);
-    //      return response()->json(['error' => 'Gagal menyimpan data payment'], 500);
-    //     }
-    // }
-
-    /**
-     * Display the specified resource.
-     */
-    // public function show(string $id)
-    // {
-    //     //
-    // }
-
+    
     /**
      * Show the form for editing the specified resource.
      */

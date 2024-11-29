@@ -65,17 +65,18 @@ Route::get('/order/statusBerhasil', [OrderController::class, 'statusBerhasil']);
 Route::get('/order/statusGagal', [OrderController::class, 'statusGagal']);
 
 // ubah status pengiriman / shipping
-Route::put('/shipping/statusKirim/{shippingId}', [ShippingControllers::class, 'updateStatusPengiriman']);
-Route::put('/shipping/statusSampai/{shippingId}', [ShippingControllers::class, 'updateStatusSampai']);
+Route::put('/shipping/statusKirim/{id}', [ShippingControllers::class, 'updateStatusPengiriman']);
+Route::put('/shipping/statusSampai/{id}', [ShippingControllers::class, 'updateStatusSampai']);
 
 // Route export pdf (struk pembayaran)
 Route::get('/invoice/download/{orderId}', [PaymentController::class, 'generateInvoice']);
 
+// ubah status order
+Route::put('/order/statusBerhasil/{id}', [OrderDetailController::class, 'updateStatusBerhasil']);
+Route::put('/order/statusGagal/{id}', [OrderDetailController::class, 'updateStatusGagal']);
+
 // route yang sudah memiliki middleware
 Route::middleware(['auth:sanctum'])->group(function () {
-    // ubah status order
-    Route::put('/order/statusBerhasil/{id}', [OrderDetailController::class, 'updateStatusBerhasil']);
-    Route::put('/order/statusGagal/{id}', [OrderDetailController::class, 'updateStatusGagal']);
     
     // menghitung biaya cart yang diceklis
     Route::post('/cart/total/{itemId}', [CartController::class, 'updateStatus']);

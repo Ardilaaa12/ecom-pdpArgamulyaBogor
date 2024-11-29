@@ -16,6 +16,7 @@ return new class extends Migration
             $table->integer('order_id');
             $table->dateTime('shipping_date')->nullable();
             $table->string('shipping_address', 150);
+            $table->string('shipping_cost', 20)->default(0)->nullable();
             $table->enum('shipping_status', [
                 '-',
                 'disiapkan',

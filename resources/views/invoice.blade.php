@@ -85,7 +85,7 @@
             <td style="width: 20%;"><strong>Nama Pelanggan</strong></td>
             <td style="width: 40%;">: {{ $customer->fullname }}</td>
             <td style="width: 20%;"><strong>Petugas</strong></td>
-            <td style="width: 20%;">: {{ $order->check_by }}</td>
+            <td style="width: 20%;">: {{ $order->check_by ?? '-' }}</td>
         </tr>
         <tr>
             <td><strong>No. Telp</strong></td>

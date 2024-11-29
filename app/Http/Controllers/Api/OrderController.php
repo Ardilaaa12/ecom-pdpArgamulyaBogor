@@ -153,7 +153,7 @@ class OrderController extends Controller
 
     public function status()
     {
-        $order = Order::whereIn('status', ['menunggu pembayaran', 'verifikasi pembayaran'])
+        $order = Order::whereIn('status', ['verifikasi pengiriman', 'menunggu pembayaran', 'verifikasi pembayaran'])
                                     ->with(['user'])
                                     ->latest()
                                     ->get();
@@ -168,7 +168,8 @@ class OrderController extends Controller
                                     ->latest()
                                     ->get();
 
-        return new MasterResource(true, 'Data Order Berhasil', $order);
+        return response()->json(new MasterResource(true, 'Data Order Berhasil', $order))
+        ->header('Access-Control-Allow-Origin', 'http://localhost:5173');
     }
 
     public function statusGagal()

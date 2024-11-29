@@ -213,17 +213,11 @@ class OrderDetailController extends Controller
 
     public function updateStatusBerhasil(string $id)
     {
-        // Temukan order_detail berdasarkan ID
-        $orderDetail = OrderDetail::find($id);
-        if (!$orderDetail) {
-            return response()->json(['error' => 'Order detail tidak ditemukan'], 404);
-        }
-
-        $user = Auth::user();
-        $name = $user->fullname;
+        // $user = Auth::user();
+        // $name = $user->fullname;
 
         // Cari order berdasarkan kolom order_id di order_detail
-        $order = Order::find($orderDetail->order_id);
+        $order = Order::find($id);
         if (!$order) {
             return response()->json(['error' => 'Order tidak ditemukan untuk order detail ini'], 404);
         }
@@ -231,7 +225,7 @@ class OrderDetailController extends Controller
         // Update status order menjadi 'berhasil' dan set check_by dalam satu langkah
         $order->update([
             'status' => 'berhasil',  // Ubah status menjadi 'berhasil'
-            'check_by' => $name  // Set kolom check_by dengan ID pengguna yang sedang login
+            // 'check_by' => $name,
         ]);
 
         // Cek dan update status pengiriman jika ada data di tabel shipping
@@ -250,17 +244,11 @@ class OrderDetailController extends Controller
 
     public function updateStatusGagal(string $id)
     {
-        // Temukan order_detail berdasarkan ID
-        $orderDetail = OrderDetail::find($id);
-        if (!$orderDetail) {
-            return response()->json(['error' => 'Order detail tidak ditemukan'], 404);
-        }
-
-        $user = Auth::user();
-        $name = $user->fullname;
+        // $user = Auth::user();
+        // $name = $user->fullname;
 
         // Cari order berdasarkan kolom order_id di order_detail
-        $order = Order::find($orderDetail->order_id);
+        $order = Order::find($id);
         if (!$order) {
             return response()->json(['error' => 'Order tidak ditemukan untuk order detail ini'], 404);
         }
@@ -268,7 +256,7 @@ class OrderDetailController extends Controller
         // Update status order menjadi 'berhasil' dan set check_by dalam satu langkah
         $order->update([
             'status' => 'gagal',  // Ubah status menjadi 'berhasil'
-            'check_by' => $name  // Set kolom check_by dengan ID pengguna yang sedang login
+            // 'check_by' => $name,
         ]);
 
         // Cek dan update status pengiriman jika ada data di tabel shipping
