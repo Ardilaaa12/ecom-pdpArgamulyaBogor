@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Product;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\MasterResource;
-use App\Models\Category;
 use GuzzleHttp\Handler\Proxy;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
@@ -27,14 +27,14 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        // \Log::info('input category_id:', $request->all());
+        \Log::info('input category_id:', $request->all());
 
         // Validasi input
         $validator = Validator::make($request->all(), [
-            'category_id' => 'required|numeric',
+            'category' => 'required',
             'name_product' => 'required',
-            'age' => 'required',
-            'weight' => 'required',
+            'age' => 'nullable',
+            'weight' => 'nullable',
             'description' => 'required',
             'price' => 'required|numeric',
             'stock' => 'required|numeric',
@@ -45,6 +45,8 @@ class ProductController extends Controller
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
+
+        $data = Category::where('name_category', $request->category)->first();
     
         // Simpan file gambar ke dalam folder 'public/product'
         $photoProduct = $request->file('photo_product');
@@ -56,10 +58,10 @@ class ProductController extends Controller
     
         // Simpan data produk ke database
         $product = Product::create([
-            'category_id' => $request->category_id,
+            'category_id' => $data->id,
             'name_product' => $request->name_product,
-            'age' => $request->age,
-            'weight' => $request->weight,
+            'age' => $request->age ?? '-',
+            'weight' => $request->weight ?? '-',
             'description' => $request->description,
             'price' => $request->price,
             'stock' => $request->stock,
