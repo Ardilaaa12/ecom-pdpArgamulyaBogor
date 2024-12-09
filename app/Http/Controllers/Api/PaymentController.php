@@ -152,25 +152,4 @@ class PaymentController extends Controller
 
         return new MasterResource(true, 'data payment berhasil di hapus', null);
     }
-
-    public function search(Request $request) 
-    {
-        $query = $request->input('query');
-        
-        // Periksa apakah query memiliki nilai sebelum dijalankan
-        if (!$query) {
-            return response()->json(['message' => 'Query tidak ditemukan'], 400);
-        }
-
-        $payment = Payment::where('payment_date', 'LIKE', "%{$query}%")
-            ->orWhere('payment_amount', 'LIKE', "%{$query}%")
-            ->get();
-
-        // Jika data tidak ditemukan, beri response yang sesuai
-        if ($payment->isEmpty()) {
-            return response()->json(['message' => 'Data tidak ditemukan'], 404);
-        }
-
-        return response()->json($payment);
-    }
 }

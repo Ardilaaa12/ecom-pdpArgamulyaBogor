@@ -127,26 +127,4 @@ class SectionController
 
         return new MasterResource(true, 'Section Behasil Dihapus!', null);
     }
-
-    public function search(Request $request) 
-    {
-        $query = $request->input ('query');
-
-        if (!$query) {
-            return response()->json(['message' => 'Query tidak ditemukan'], 400);
-        }
-
-        $section = Section::where('title', 'LIKE', "%{$query}%")
-            ->orWhere('description', 'LIKE', "%{$query}%")
-            ->orWhere('status', 'LIKE', "%{$query}%")
-            ->orWhere('type', 'LIKE', "%{$query}%")
-            ->get();
-
-        if ($section->isEmpty()) {
-            return response()->json(['message' => 'Data tidak ditemukan'], 404);
-        }
-
-        return response()->json($section);
-
-    }
 }

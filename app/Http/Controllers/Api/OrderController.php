@@ -77,29 +77,6 @@ class OrderController extends Controller
         //
     }
 
-    public function search(Request $request) 
-    {
-        $query = $request->input('query');
-        
-        // Periksa apakah query memiliki nilai sebelum dijalankan
-        if (!$query) {
-            return response()->json(['message' => 'Query tidak ditemukan'], 400);
-        }
-
-        $order = Order::where('no_ref_order', 'LIKE', "%{$query}%")
-            ->orWhere('total_amount', 'LIKE', "%{$query}%")
-            ->orWhere('order_date', 'LIKE', "%{$query}%")
-            ->orWhere('status', 'LIKE', "%{$query}%")
-            ->get();
-
-        // Jika data tidak ditemukan, beri response yang sesuai
-        if ($order->isEmpty()) {
-            return response()->json(['message' => 'Data tidak ditemukan'], 404);
-        }
-
-        return response()->json($order);
-    }
-
     public function monthlyData(Request $request)
     {
         $Bulan = Carbon::now()->month;

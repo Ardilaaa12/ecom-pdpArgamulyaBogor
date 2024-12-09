@@ -130,28 +130,6 @@ class ShippingControllers extends Controller
         return new MasterResource(true, 'Data Pengiriman berhasil di hapus!', null);
     }
 
-    public function search(Request $request) 
-    {
-        $query = $request->input('query');
-        
-        // Periksa apakah query memiliki nilai sebelum dijalankan
-        if (!$query) {
-            return response()->json(['message' => 'Query tidak ditemukan'], 400);
-        }
-
-        $shipping = Shipping::where('shipping_date', 'LIKE', "%{$query}%")
-            ->orWhere('shipping_address', 'LIKE', "%{$query}%")
-            ->orWhere('shipping_status', 'LIKE', "%{$query}%")
-            ->get();
-
-        // Jika data tidak ditemukan, beri response yang sesuai
-        if ($shipping->isEmpty()) {
-            return response()->json(['message' => 'Data tidak ditemukan'], 404);
-        }
-
-        return response()->json($shipping);
-    }
-
     public function status()
     {
         $shipping = Shipping::whereIn('status', ['disiapkan', 'dalam perjalanan'])

@@ -203,26 +203,4 @@ class UserController extends Controller
 
         return new MasterResource(true, 'Data user berhasil dihapus', null);
     }
-
-    public function search(Request $request)
-    {
-        $query = $request->input('query');
-
-        if (!$query) {
-            return response()->json(['message' => 'Query tidak ditemukan'], 400);
-        }
-
-        $user = User::where('username', 'LIKE', "%{$query}%")
-                    ->orWhere('fullname', 'LIKE', "%{$query}%")
-                    ->orWhere('email', 'LIKE', "%{$query}%")
-                    ->orWhere('address', 'LIKE', "%{$query}%")
-                    ->orWhere('phone_number', 'LIKE', "%{$query}%")
-                    ->get();
-
-        if ($user->isEmpty()) {
-            return response()->json(['message' => 'Data tidak ditemukan'], 400);
-        }
-
-        return response()->json($user);
-    }
 }

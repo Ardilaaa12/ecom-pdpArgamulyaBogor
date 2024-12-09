@@ -122,25 +122,4 @@ class ContentController extends Controller
 
         return new MasterResource(true, 'Content berhasil Dihapus!', null);
     }
-
-    public function search(Request $request)
-    {
-        $query = $request->input('query');
-
-        if (!$query) {
-            return response()->json(['message' => 'Query tidak ditemukan'], 400);
-        }
-
-        $content = Content::where('title', 'LIKE', "%{$query}%")
-            ->orWhere('description', 'LIKE', "%{$query}%")
-            ->orWhere('status', 'LIKE', "%{$query}%")
-            ->orWhere('type', 'LIKE', "%{$query}%")
-            ->get();
-
-        if ($content->isEmpty()) {
-            return response()->json(['message' => 'Data tidak ditemukan'], 404);
-        }
-
-        return response()->json($content);
-    }
 }
