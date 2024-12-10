@@ -16,7 +16,7 @@ class ShippingControllers extends Controller
     // admin
     public function index()
     {
-        $data = Order::with('shipping', 'user')->get();
+        $data = Order::with('shipping.shippingCost', 'user')->get();
         return new MasterResource(true, 'List Data Order dengan Shipping', $data);
     }
     

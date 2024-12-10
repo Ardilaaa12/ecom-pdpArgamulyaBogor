@@ -25,6 +25,7 @@ use App\Http\Controllers\Api\SectionController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\ShippingControllers;
 use App\Http\Controllers\Api\GlobalController;
+use App\Http\Controllers\Api\ShippingCostController;
 
 // fitur search
 Route::get('/search', [GlobalController::class, 'search']);
@@ -41,6 +42,7 @@ Route::apiResource('/navbar', App\Http\Controllers\Api\NavbarController::class);
 Route::apiResource('/section', App\Http\Controllers\Api\SectionController::class);
 Route::apiResource('/content', App\Http\Controllers\Api\ContentController::class);
 Route::apiResource('/shipping', App\Http\Controllers\Api\ShippingControllers::class);
+Route::apiResource('/shippingCost', App\Http\Controllers\Api\ShippingCostController::class);
 
 
 // login-logout-register

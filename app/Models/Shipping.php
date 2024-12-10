@@ -11,6 +11,7 @@ class Shipping extends Model
 
     protected $fillable = [
         'order_id',
+        'shipping_cost_id',
         'shipping_date',
         'shipping_address',
         'shipping_status',
@@ -18,5 +19,9 @@ class Shipping extends Model
 
     public function order() {
         return $this->belongsTo(Order::class);
+    }
+
+    public function shippingCost() {
+        return $this->belongsTo(ShippingCost::class);
     }
 }

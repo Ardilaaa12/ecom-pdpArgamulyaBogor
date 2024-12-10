@@ -27,7 +27,7 @@ class PaymentController extends Controller
     public function generateInvoice($orderId)
     {
         // Mengambil data order beserta relasinya
-        $data = Order::with('user', 'orderDetail.product.category', 'payment.rekening')
+        $data = Order::with('user', 'orderDetail.product.category', 'payment.rekening', 'shipping.shippingCost')
             ->where('id', $orderId)
             ->first();
 
@@ -35,11 +35,15 @@ class PaymentController extends Controller
             return response()->json(['message' => 'Order not found'], 404);
         }
 
+        $total = $data->total_amount - $data->shipping->shippingCost->cost;
+
         // Load view dan passing data
         $pdf = Pdf::loadView('invoice', [
             'order' => $data,
             'customer' => $data->user,
             'payment' => $data->payment,
+            'shipping' => $data->shipping->shippingCost,
+            'total' => $total,
         ]);
 
         // Mengunduh file PDF

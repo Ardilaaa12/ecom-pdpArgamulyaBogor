@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('shippings', function (Blueprint $table) {
             $table->id();
             $table->integer('order_id');
+            $table->integer('shipping_cost_id');
             $table->dateTime('shipping_date')->nullable();
             $table->string('shipping_address', 150);
-            $table->string('shipping_cost', 20)->default(0)->nullable();
             $table->enum('shipping_status', [
                 '-',
                 'disiapkan',

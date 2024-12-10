@@ -11,6 +11,7 @@ use App\Models\LikeItem;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\Shipping;
+use App\Models\ShippingCost;
 use App\Models\Payment;
 use App\Models\Rekening;
 use Carbon\Carbon;
@@ -109,6 +110,7 @@ class OrderDetailController extends Controller
 
         $shippingDate = $request->input('shipping_date');
         $address = $request->input('address');
+        $shippingCostId = $request->input('shipping_cost');
         $paymentMethod = $request->input('payment_method');
         $notes = $request->input('notes');
         
@@ -116,16 +118,21 @@ class OrderDetailController extends Controller
             return response()->json(['message' => 'Tidak ada item yang dipilih'], 400);
         }
 
+        $shippingCost = ShippingCost::find($shippingCostId);
+        if (!$shippingCost) {
+            return response()->json(['message' => 'Maaf, Domba belum bisa diantar ke tempat anda']);
+        }
+
         $payment = Rekening::where('id', $paymentMethod)->exists();
         if (!$payment) {
             return response()->json(['message' => 'Metode pembayaran tidak valid'], 400);
         }
         
-        return $this->checkoutFromCart($user, $selectedItems, $shippingDate, $address, $paymentMethod, $notes);
+        return $this->checkoutFromCart($user, $selectedItems, $shippingDate, $address, $shippingCost, $paymentMethod, $notes);
 
     }
 
-    public function checkoutFromCart($user, $selectedItems, $shippingDate, $address, $paymentMethod, $notes)
+    public function checkoutFromCart($user, $selectedItems, $shippingDate, $address, $shippingCost, $paymentMethod, $notes)
     {
         $totalPrice = 0;
         $cart = Cart::where('user_id', $user->id)->first();
@@ -160,6 +167,8 @@ class OrderDetailController extends Controller
             return response()->json(['message' => 'Barang tidak ada di cart!'], 400);
         }
 
+        $totalPrice += $shippingCost->cost;
+
         // Buat order
         $order = Order::create([
             'user_id' => $user->id,
@@ -174,6 +183,7 @@ class OrderDetailController extends Controller
 
         Shipping::create([
             'order_id' => $order->id,
+            'shipping_cost_id' => $shippingCost->cost,
             'shipping_date' => $shippingDate,
             'shipping_address' => $shippingAddress,
         ]);

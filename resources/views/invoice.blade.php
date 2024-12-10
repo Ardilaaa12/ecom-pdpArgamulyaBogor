@@ -137,11 +137,11 @@
         <tbody>
             <tr>
                 <td colspan="5" style="text-align: right;"><strong>Total</strong></td>
-                <td style="width: 50%">Rp {{ number_format($order['total_amount'], 0, ',', '.') }}</td>
+                <td style="width: 50%">Rp {{ number_format($total, 0, ',', '.') }}</td>
             </tr>
             <tr>
                 <td colspan="5" style="text-align: right;"><strong>Biaya Pengiriman</strong></td>
-                <td>Rp 50.000</td>
+                <td>Rp {{ number_format($shipping['cost'], 0, ',', '.') }}</td>
             </tr>
             <tr>
                 <td colspan="5" style="text-align: right;"><strong>Grand Total</strong></td>
