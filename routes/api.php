@@ -28,6 +28,7 @@ use App\Http\Controllers\Api\GlobalController;
 use App\Http\Controllers\Api\ShippingCostController;
 
 // fitur search
+Route::get('/shipping/status', [ShippingControllers::class, 'status']);
 Route::get('/search', [GlobalController::class, 'search']);
 
 // route function index, store, show, update, destroy
@@ -68,6 +69,18 @@ Route::get('/invoice/download/{orderId}', [PaymentController::class, 'generateIn
 // ubah status order
 Route::put('/order/statusBerhasil/{id}', [OrderDetailController::class, 'updateStatusBerhasil']);
 Route::put('/order/statusGagal/{id}', [OrderDetailController::class, 'updateStatusGagal']);
+
+// show laporan
+Route::get('/sales-report', [GlobalController::class, 'salesReport']);
+Route::get('/sheep-stock-report', [GlobalController::class, 'sheepStockReport']);
+Route::get('/payment-report', [GlobalController::class, 'paymentReport']);
+Route::get('/shipping-report', [GlobalController::class, 'shippingReport']);
+
+// export excel
+Route::get('/sales-report/export', [GlobalController::class, 'exportSalesReport']);
+Route::get('/sheep-stock-report/export', [GlobalController::class, 'exportSheepStockReport']);
+Route::get('/payment-report/export', [GlobalController::class, 'exportPaymentReport']);
+Route::get('/shipping-report/export', [GlobalController::class, 'exportShippingReport']);
 
 // route yang sudah memiliki middleware
 Route::middleware(['auth:sanctum'])->group(function () {

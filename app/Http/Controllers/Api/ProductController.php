@@ -31,13 +31,14 @@ class ProductController extends Controller
 
         // Validasi input
         $validator = Validator::make($request->all(), [
-            'category' => 'required',
+            'category_name' => 'required',
             'name_product' => 'required',
-            'age' => 'nullable',
-            'weight' => 'nullable',
+            'age' => 'required',
+            'weight' => 'required',
             'description' => 'required',
             'price' => 'required|numeric',
             'stock' => 'required|numeric',
+            'health_status' => 'nullable|in:sehat,sakit',
             'photo_product' => 'required|image|mimes:jpeg,jpg,png,svg,gif|max:2048',
         ]);
     
@@ -46,7 +47,7 @@ class ProductController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        $data = Category::where('name_category', $request->category)->first();
+        $data = Category::where('name_category', $request->category_name)->first();
     
         // Simpan file gambar ke dalam folder 'public/product'
         $photoProduct = $request->file('photo_product');
@@ -65,6 +66,7 @@ class ProductController extends Controller
             'description' => $request->description,
             'price' => $request->price,
             'stock' => $request->stock,
+            'health_status' => $request->health_status ?? 'sehat',
             'photo_product' => $photoProductUrl, // Simpan URL gambar
         ]);
     
@@ -102,6 +104,7 @@ class ProductController extends Controller
             'description' => 'nullable',
             'price' => 'nullable|numeric',
             'stock' => 'nullable|numeric',
+            'health_status' => 'nullable|in:sehat,sakit',
             'photo_product' => 'nullable|image|mimes:jpeg,jpg,png,svg,gif|max:2048',
         ]);
 
@@ -128,6 +131,7 @@ class ProductController extends Controller
                 'description'   => $request->description ?? $product->description,
                 'price'         => number_format($request->price) ?? $product->price,
                 'stock'         => $request->stock ?? $product->stock,
+                'health_status' => $request->health_status ?? $product->health_status,
                 'photo_product' => $photoProductUrl,
             ]);
         } else {
@@ -140,6 +144,7 @@ class ProductController extends Controller
                 'description'   => $request->description ?? $product->description,
                 'price'         => number_format($request->price) ?? $product->price,
                 'stock'         => $request->stock ?? $product->stock,
+                'health_status' => $request->health_status ?? $product->health_status,
             ]);
         }
 

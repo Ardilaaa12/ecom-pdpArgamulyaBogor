@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class ShippingControllers extends Controller
 {
@@ -130,20 +131,17 @@ class ShippingControllers extends Controller
         return new MasterResource(true, 'Data Pengiriman berhasil di hapus!', null);
     }
 
+    // admin
     public function status()
     {
-        $shipping = Shipping::whereIn('status', ['disiapkan', 'dalam perjalanan'])
-                            ->latest()
-                            ->get();
-
-        $shippingDone = Shipping::where('status', 'sudah sampai')
-                            ->latest()
-                            ->get();
+        $shippingDone = Shipping::with('order.user', 'shippingCost')
+        ->where('shipping_status', 'sudah sampai')
+        ->latest()
+        ->get();
         
         return response()->json([
             'success' => true,
             'message' => 'Data',
-            'pengiriman' => $shipping,
             'pengiriman_sampai' => $shippingDone,
         ]);
     }

@@ -20,6 +20,10 @@ return new class extends Migration
             $table->string('description', 225)->nullable();
             $table->string('price', 20);
             $table->integer('stock');
+            $table->enum('condition', [
+                'sehat',
+                'sakit'
+            ])->default('sehat');
             $table->string('photo_product', 100);
             $table->timestamps();
             $table->softDeletes();

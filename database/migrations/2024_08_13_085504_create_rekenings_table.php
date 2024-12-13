@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('rekenings', function (Blueprint $table) {
             $table->id();
             $table->string('payment_method', 50);
-            $table->string('payment_master_image', 100);
+            $table->string('payment_master_image', 150);
             $table->timestamps();
             $table->softDeletes();
         });

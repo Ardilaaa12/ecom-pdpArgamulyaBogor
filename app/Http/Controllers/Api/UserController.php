@@ -180,10 +180,7 @@ class UserController extends Controller
 
         // Update user dengan data yang sudah disiapkan
         $user->update($dataToUpdate);
-
-        \Log::info('Data yang akan diupdate:', $dataToUpdate);
-
-
+        
         return new MasterResource(true, 'Data user berhasil diubah!', $user);
     }
 
