@@ -40,12 +40,10 @@ class RekeningController extends Controller
         $rekeningImageName = $rekeningImage->hashName();
         $rekeningImage->storeAs('public/rekening', $rekeningImageName);
 
-        $rekeningImageUrl = asset('storage/rekening/' . $rekeningImageName);
-
         // tambah data
         $data = Rekening::create([
             'payment_method'        => $request->payment_method,
-            'payment_master_image'  => $rekeningImageUrl,
+            'payment_master_image'  => '/storage/rekening/' . $rekeningImageName,
         ]);
 
         if($data) {
@@ -87,15 +85,13 @@ class RekeningController extends Controller
             $rekeningImage = $request->file('payment_master_image');
             $rekeningImageName = $rekeningImage->hashName();
             $rekeningImage->storeAs('public/rekening', $rekeningImageName);
-    
-            $rekeningImageUrl = asset('storage/rekening/' . $rekeningImageName);
-            
+                
             // hapus paymentImage sebelumnya
             Storage::delete('public/rekening/'.basename($post->payment_master_image));
 
             $post->update([
                 'payment_method'        => $request->payment_method,
-                'payment_master_image'  => $rekeningImageUrl,
+                'payment_master_image'  => '/storage/rekening/' . $rekeningImageName,
             ]);
         } else {
             // update tanpa paymentImage

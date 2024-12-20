@@ -54,9 +54,6 @@ class ProductController extends Controller
         $photoProductName = $photoProduct->hashName(); // Generate nama file unik
         $photoProduct->storeAs('public/product', $photoProductName);
     
-        // Generate URL untuk gambar menggunakan helper asset()
-        $photoProductUrl = asset('storage/product/' . $photoProductName);
-    
         // Simpan data produk ke database
         $product = Product::create([
             'category_id' => $data->id,
@@ -67,7 +64,7 @@ class ProductController extends Controller
             'price' => $request->price,
             'stock' => $request->stock,
             'health_status' => $request->health_status ?? 'sehat',
-            'photo_product' => $photoProductUrl, // Simpan URL gambar
+            'photo_product' => '/storage/product/' . $photoProductName, // Simpan URL gambar
         ]);
     
         // Cek jika penyimpanan data berhasil
@@ -117,8 +114,6 @@ class ProductController extends Controller
             $photoProduct = $request->file('photo_product');
             $photoProductName = $photoProduct->hashName();
             $photoProduct->storeAs('public/product', $photoProductName);
-        
-            $photoProductUrl = asset('storage/product/' . $photoProductName);
 
             // delete old image 
             Storage::delete('public/product/' . basename($product->photo_product));
@@ -132,7 +127,7 @@ class ProductController extends Controller
                 'price'         => number_format($request->price) ?? $product->price,
                 'stock'         => $request->stock ?? $product->stock,
                 'health_status' => $request->health_status ?? $product->health_status,
-                'photo_product' => $photoProductUrl,
+                'photo_product' => '/storage/product/' . $photoProductName,
             ]);
         } else {
             // without image

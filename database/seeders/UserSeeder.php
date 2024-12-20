@@ -2,65 +2,117 @@
 
 namespace Database\Seeders;
 
-<<<<<<< HEAD
-use App\Models\User;
-use App\Models\Cart;
-use App\Models\Like;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-=======
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
-use App\Models\User;
->>>>>>> d9a5499fbd9d0f26488be66e05e193b2178f3bd5
+use Carbon\Carbon;
 
 class UserSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
-    public function run(): void
+    public function run()
     {
-        User::create([
-<<<<<<< HEAD
-            'username'  => 'adminPdp',
-            'email'     => 'admin01@gmail.com',
-            'password'  => 'Kazuha12*',
-            'role'      => 'admin',
-            'is_verified' => 1,
+        DB::table('users')->insert([
+            [
+                'username' => 'adminPDP',
+                'email' => 'admin@gmail.com',
+                'password' => Hash::make('password123'), // Pastikan menggunakan Hash
+                'fullname' => 'Admin PDP',
+                'address' => 'Jl. Admin No.1',
+                'phone_number' => '081234567890',
+                'role' => 'admin',
+                'verification_code' => null,
+                'is_verified' => true,
+                'created_at' => Carbon::now()->subMonth(), // Sebulan yang lalu
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'username' => 'adminArgamulya',
+                'email' => 'adminargamulya@gmail.com',
+                'password' => Hash::make('password123'), // Pastikan menggunakan Hash
+                'fullname' => 'Admin Argamulya',
+                'address' => 'Jl. Admin No.1',
+                'phone_number' => '081234567890',
+                'role' => 'admin',
+                'verification_code' => null,
+                'is_verified' => true,
+                'created_at' => Carbon::now()->subMonth(), // Sebulan yang lalu
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'username' => 'Lala',
+                'email' => 'lala@gmail.com',
+                'password' => Hash::make('password123'),
+                'fullname' => 'Customer Lala',
+                'address' => 'Jl. Customer No.2',
+                'phone_number' => '081234567891',
+                'role' => 'customer',
+                'verification_code' => '123456',
+                'is_verified' => false,
+                'created_at' => Carbon::now()->subMonth(), // Sebulan yang lalu
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'username' => 'Dila',
+                'email' => 'dila@gmail.com',
+                'password' => Hash::make('password123'),
+                'fullname' => 'Customer Dila',
+                'address' => 'Jl. Customer No.2',
+                'phone_number' => '081234567891',
+                'role' => 'customer',
+                'verification_code' => '123456',
+                'is_verified' => false,
+                'created_at' => Carbon::now()->subMonth(), // Sebulan yang lalu
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'username' => 'Hana',
+                'email' => 'hana@gmail.com',
+                'password' => Hash::make('password123'),
+                'fullname' => 'Customer Hana',
+                'address' => 'Jl. Customer No.2',
+                'phone_number' => '081234567891',
+                'role' => 'customer',
+                'verification_code' => '123456',
+                'is_verified' => true,
+                'created_at' => Carbon::now()->subMonth(), // Sebulan yang lalu
+                'updated_at' => Carbon::now(),
+            ],
         ]);
 
-        User::create([
-            'username'  => 'customerPdp',
-            'email'     => 'customer01@gmail.com',
-            'password'  => Hash::make('Kazuha12*'),
-            'role'      => 'customer',
-            'is_verified' => 1,
+        DB::table('carts')->insert([
+            [
+                'user_id' => 3,
+                'created_at' => Carbon::now()->subMonth(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'user_id' => 4,
+                'created_at' => Carbon::now()->subMonth(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'user_id' => 5,
+                'created_at' => Carbon::now()->subMonth(),
+                'updated_at' => Carbon::now(),
+            ],
         ]);
 
-        Cart::create([
-            'user_id' => 2,
+        DB::table('likes')->insert([
+            [
+                'user_id' => 3,
+                'created_at' => Carbon::now()->subMonth(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'user_id' => 4,
+                'created_at' => Carbon::now()->subMonth(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'user_id' => 5,
+                'created_at' => Carbon::now()->subMonth(),
+                'updated_at' => Carbon::now(),
+            ],
         ]);
-
-        Like::create([
-            'user_id' => 2,
-        ]);
-=======
-            'username' => 'Admin PDP',
-            'email' => 'pdpargamulyabogor@gmail.com',
-            'password' => Hash::make('Kazuha12*'),
-            'role' => 'admin',
-            'is_verified' => 1,
-        ]);
-
-        // User::create([
-        //     'username' => 'Admin PDP',
-        //     'email' => 'pdpargamulyabogor@gmail.com',
-        //     'password' => Hash::make('Kazuha12*'),
-        //     'role' => 'admin',
-        //     'is_verified' => 1,
-        // ]);
->>>>>>> d9a5499fbd9d0f26488be66e05e193b2178f3bd5
     }
 }

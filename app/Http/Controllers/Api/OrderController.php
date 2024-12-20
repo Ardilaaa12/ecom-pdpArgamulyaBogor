@@ -17,10 +17,17 @@ class OrderController extends Controller
     // admin 
     public function index()
     {
-        $user = User::with(['order.shipping'])->get();
-        // $order = Order::with(['user'])->get();
+        $user = User::whereHas('order', function ($query) {
+            $query->where('status', 'verifikasi pembayaran');
+        })
+        ->with(['order' => function ($query) {
+            $query->where('status', 'verifikasi pembayaran');
+        }, 'order.shipping'])
+        ->get();
+
         return new MasterResource(true, 'List data yang ada di order', $user);
     }
+
 
     /**
      * Show the form for creating a new resource.

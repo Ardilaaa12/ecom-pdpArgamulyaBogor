@@ -16,7 +16,7 @@ return new class extends Migration
             $table->integer('navbar_id');
             $table->string('title', 100);
             $table->string('description', 225);
-            $table->string('media', 100);
+            $table->string('media', 150);
             $table->enum('status', ['active', 'nonActive']);
             $table->string('type', 100);
             $table->timestamps();

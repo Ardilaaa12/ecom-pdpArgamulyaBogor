@@ -39,14 +39,11 @@ class ContentController extends Controller
         $imageName = $image->hashName(); // Generate nama file unik
         $image->storeAs('public/content', $imageName);
 
-        // Generate URL untuk gambar menggunakan Storage::url()
-        $imageUrl = asset('/storage/content/' . $imageName); // URL yang benar
-
         $data = Content::create([
             'section_id'    => $request->section_id,
             'title'         => $request->title,
             'description'   => $request->description,
-            'media'         => $imageUrl,
+            'media'         => '/storage/content/' . $imageName,
             'status'        => $request->status,
             'type'          => $request->type,
         ]);
@@ -85,9 +82,6 @@ class ContentController extends Controller
             $imageName = $image->hashName(); // Generate nama file unik
             $image->storeAs('public/content', $imageName);
 
-            // Generate URL untuk gambar menggunakan Storage::url()
-            $imageUrl = asset('/storage/content/' . $imageName); // URL yang benar
-
             // hapus media sebelumnya
             Storage::delete('public/content/'.basename($data->media));
 
@@ -95,7 +89,7 @@ class ContentController extends Controller
                 'section_id'        => $request->section_id,
                 'title'             => $request->title,
                 'description'       => $request->description,
-                'media'             => $imageUrl,
+                'media'             => '/storage/content/' . $imageName,
                 'status'            => $request->status,
                 'type'              => $request->type,
 

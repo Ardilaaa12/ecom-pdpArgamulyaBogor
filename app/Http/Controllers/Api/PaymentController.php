@@ -107,14 +107,13 @@ class PaymentController extends Controller
             $paymentImage = $request->file('payment_image');
             $paymentImageName = $paymentImage->hashName();
             $paymentImage->storeAs('public/payment', $paymentImageName);
-            $paymentImageUrl = asset('storage/payment/' . $paymentImageName);
 
             Storage::delete('public/payment/' . basename($payment->payment_image));
 
             $payment->update([
                 'payment_date' => $request->payment_date,
                 'payment_amount' => $request->payment_amount,
-                'payment_image' => $paymentImageUrl,
+                'payment_image' => '/storage/payment/' . $paymentImageName,
                 'account_name' => $request->account_name,
             ]);
 

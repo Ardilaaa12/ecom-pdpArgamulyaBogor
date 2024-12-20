@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('fullname', 100)->nullable();
             $table->string('address', 150)->nullable();
             $table->string('phone_number', 13)->nullable();
-            $table->string('image', 100)->nullable();
+            $table->string('image', 150)->nullable();
             $table->enum('role', ['admin', 'customer']);
             $table->string('verification_code', 10)->nullable();
             $table->boolean('is_verified')->default(false);    

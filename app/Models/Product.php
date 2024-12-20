@@ -21,6 +21,11 @@ class Product extends Model
         'photo_product',
     ];
 
+    public function getPhotoProductAttribute($value)
+    {
+        return asset($value); // Mengembalikan URL lengkap
+    }
+
     public function category() {
         return $this->belongsTo(Category::class);
     }

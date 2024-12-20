@@ -15,6 +15,11 @@ class Rekening extends Model
         'payment_master_image',
     ];
 
+    public function getPaymentMasterImageAttribute($value)
+    {
+        return asset($value); // Mengembalikan URL lengkap
+    }
+    
     public function payments()
     {
         return $this->hasMany(Payment::class, 'payment_master_id'); // Relasi ke tabel payment

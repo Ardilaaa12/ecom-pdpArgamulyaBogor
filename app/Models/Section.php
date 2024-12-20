@@ -19,6 +19,11 @@ class Section extends Model
         'type',
     ];
 
+    public function getMediaAttribute($value)
+    {
+        return asset($value); // Mengembalikan URL lengkap
+    }
+
     public function content() {
         return $this->hasMany(Content::class);
     }

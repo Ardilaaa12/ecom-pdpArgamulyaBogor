@@ -19,6 +19,11 @@ class Review extends Model
         'rate'
     ];
 
+    public function getImageAttribute($value)
+    {
+        return asset($value); // Mengembalikan URL lengkap
+    }
+
     public function user() {
         return $this->belongsTo(User::class);
     }

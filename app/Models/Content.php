@@ -18,6 +18,11 @@ class Content extends Model
         'type',
     ];
 
+    public function getMediaAttribute($value)
+    {
+        return asset($value); // Mengembalikan URL lengkap
+    }
+
     public function section() {
         return $this->belongsTo(Section::class);
     }

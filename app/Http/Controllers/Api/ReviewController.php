@@ -43,14 +43,11 @@ class ReviewController extends Controller
         $imageName = $image->hashName(); // Generate nama file unik
         $image->storeAs('public/review', $imageName);
 
-        // Generate URL untuk gambar menggunakan Storage::url()
-        $imageUrl = asset('/storage/review/' . $imageName); // URL yang benar
-
         // tambah data
         $data = Review::create([
             'user_id'       => auth()->id(),
             'product_id'    => $request->product_id,
-            'image'         => $imageUrl,
+            'image'         => '/storage/review/' . $imageName,
             'description'   => $request->description,
             'review_date'   => Carbon::now('Asia/Jakarta')->format('Y-m-d H:i:s'), //agar format waktu sama
             'amount_like'   => $request->amount_like ?? 0,
@@ -89,16 +86,13 @@ class ReviewController extends Controller
             $imageName = $image->hashName(); // Generate nama file unik
             $image->storeAs('public/review', $imageName);
 
-            // Generate URL untuk gambar menggunakan Storage::url()
-            $imageUrl = asset('/storage/review/' . $imageName); // URL yang benar
-
             // hapus image sebelumnya
             Storage::delete('public/review/'.basename($data->image));
 
             // update data
             $data->update([
                 'product_id'    => $request->product_id,
-                'image'         => $imageUrl,
+                'image'         => '/storage/review/' . $imageName,
                 'description'   => $request->description,
                 'rate'          => $request->rate,
             ]);

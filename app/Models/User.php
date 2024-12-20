@@ -34,6 +34,11 @@ class User extends Authenticatable implements MustVerifyEmail
         'is_verified',
     ];
 
+    public function getImageAttribute($value)
+    {
+        return asset($value); // Mengembalikan URL lengkap
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *

@@ -18,6 +18,12 @@ class Payment extends Model
         'account_name',
     ];
 
+    public function getPaymentImageAttribute($value)
+    {
+        return asset($value); // Menggunakan asset untuk menghasilkan URL, tapi ini hanya berlaku jika URL base sudah sesuai
+    }
+        
+
     public function order() {
         return $this->belongsTo(Order::class);
     }

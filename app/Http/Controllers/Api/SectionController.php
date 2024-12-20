@@ -40,15 +40,12 @@ class SectionController
         $imageName = $image->hashName(); // Generate nama file unik
         $image->storeAs('public/section', $imageName);
 
-        // Generate URL untuk gambar menggunakan Storage::url()
-        $imageUrl = asset('/storage/section/' . $imageName); // URL yang benar
-
         // tambah data
         $data = Section::create([
             'navbar_id'     => $request->navbar_id,
             'title'         => $request->title,
             'description'   => $request->description,
-            'media'         => $imageUrl,
+            'media'         => '/storage/section/' . $imageName,
             'status'        => $request->status,
             'type'          => $request->type,
         ]);
@@ -91,9 +88,6 @@ class SectionController
             $imageName = $image->hashName(); // Generate nama file unik
             $image->storeAs('public/section', $imageName);
 
-            // Generate URL untuk gambar menggunakan Storage::url()
-            $imageUrl = asset('/storage/section/' . $imageName); // URL yang benar
-
             // hapus media sebelumnya
             Storage::delete('public/section/'.basename($data->media));
 
@@ -101,7 +95,7 @@ class SectionController
                 'navbar_id'         => $request->navbar_id,
                 'title'             => $request->title,
                 'description'       => $request->description,
-                'media'             => $imageUrl,
+                'media'             => '/storage/section/' . $imageName,
                 'status'            => $request->status,
                 'type'              => $request->type,
 

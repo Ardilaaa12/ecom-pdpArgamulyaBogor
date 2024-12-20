@@ -56,10 +56,7 @@ class UserController extends Controller
         // Upload image
         $image = $request->file('image');
         $imageName = $image->hashName(); // Generate nama file unik
-        $image->storeAs('public/user', $imageName);
-
-        // Generate URL untuk gambar menggunakan Storage::url()
-        $imageUrl = asset('/storage/user/' . $imageName); // URL yang benar
+        $image->storeAs('public/user', $imageName); // Simpan gambar di folder public/user
 
         // Create user
         $user = User::create([
@@ -69,12 +66,12 @@ class UserController extends Controller
             'fullname' => $request->fullname,
             'address' => $request->address,
             'phone_number' => $request->phone_number,
-            'image' => $imageUrl, // Simpan URL gambar
+            'image' => '/storage/user/' . $imageName, // Tambahkan prefix ke nama file
             'role' => $request->role,
         ]);
 
         if ($user->role === 'customer') {
-            Cart::create(['user_id' => $user->id]); 
+            Cart::create(['user_id' => $user->id]);
             Like::create(['user_id' => $user->id]);
         }
 
@@ -168,14 +165,13 @@ class UserController extends Controller
             $image = $request->file('image');
             $imageName = $image->hashName();
             $image->storeAs('public/user', $imageName);
-            $imageUrl = asset('/storage/user/' . $imageName);
 
             // Hapus gambar lama
             if ($user->image) {
                 Storage::delete('public/user/' . basename($user->image));
             }
 
-            $dataToUpdate['image'] = $imageUrl;
+            $dataToUpdate['image'] = '/storage/user/' . $imageName;
         }
 
         // Update user dengan data yang sudah disiapkan

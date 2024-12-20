@@ -24,7 +24,7 @@ return new class extends Migration
                 'sehat',
                 'sakit'
             ])->default('sehat');
-            $table->string('photo_product', 100);
+            $table->string('photo_product', 150);
             $table->timestamps();
             $table->softDeletes();
         });
