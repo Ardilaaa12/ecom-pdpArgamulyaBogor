@@ -71,13 +71,11 @@ Route::put('/order/statusBerhasil/{id}', [OrderDetailController::class, 'updateS
 Route::put('/order/statusGagal/{id}', [OrderDetailController::class, 'updateStatusGagal']);
 
 // show laporan
-Route::get('/sales-report', [GlobalController::class, 'salesReport']);
 Route::get('/sheep-stock-report', [GlobalController::class, 'sheepStockReport']);
 Route::get('/payment-report', [GlobalController::class, 'paymentReport']);
 Route::get('/shipping-report', [GlobalController::class, 'shippingReport']);
 
 // export excel
-Route::get('/sales-report/export', [GlobalController::class, 'exportSalesReport']);
 Route::get('/sheep-stock-report/export', [GlobalController::class, 'exportSheepStockReport']);
 Route::get('/payment-report/export', [GlobalController::class, 'exportPaymentReport']);
 Route::get('/shipping-report/export', [GlobalController::class, 'exportShippingReport']);
@@ -87,19 +85,19 @@ Route::middleware(['auth:sanctum'])->group(function () {
     
     // menghitung biaya cart yang diceklis
     Route::post('/cart/total/{itemId}', [CartController::class, 'updateStatus']);
-
+    
     // data pengguna login saja
     Route::get('/detail', [UserController::class, 'getUser']);
-
+    
     // membuat pesanan
     Route::post('/order/checkout', [OrderDetailController::class, 'store']);
-
+    
     // data order pengguna login saja
     Route::get('/order/see', [OrderDetailController::class, 'see']);
     
     //logout
     Route::post('/logout', [AuthController::class, 'logout']);
-
+    
     Route::apiResource('/review', App\Http\Controllers\Api\ReviewController::class);
     Route::apiResource('/likes', App\Http\Controllers\Api\LikeController::class);
     Route::apiResource('/carts', App\Http\Controllers\Api\CartController::class);
@@ -109,4 +107,10 @@ Route::middleware(['auth:sanctum', IsCustomer::class])->group(function () {
 });
 
 Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
+});
+
+
+Route::middleware('web')->group(function () {
+    Route::get('/sales-report', [GlobalController::class, 'salesReport']);
+    Route::get('/sales-report/export', [GlobalController::class, 'exportSalesReport']);
 });

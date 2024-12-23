@@ -25,10 +25,10 @@ class Rekening extends Model
         return $this->hasMany(Payment::class, 'payment_master_id'); // Relasi ke tabel payment
     }
 
-    protected function image(): Attribute
-    {
-        return Attribute::make(
-            get: fn ($image) => url('/storage/rekening' . $image),
-        );
-    }
+    // protected function image(): Attribute
+    // {
+    //     return Attribute::make(
+    //         get: fn ($image) => url('/storage/rekening' . $image),
+    //     );
+    // }
 }

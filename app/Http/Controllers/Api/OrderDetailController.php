@@ -296,27 +296,27 @@ class OrderDetailController extends Controller
         }
     }
     
-    public function destroy(string $id)
-    {
-        DB::beginTransaction();
+    // public function destroy(string $id)
+    // {
+    //     DB::beginTransaction();
 
-        try {
-            $OrderDetail = OrderDetail::findOrFail($id);
+    //     try {
+    //         $OrderDetail = OrderDetail::findOrFail($id);
 
-            // mengembalikan stok produk 
-            $product = Product::findOrFail($OrderDetail->product_id);
-            $product->stock += $OrderDetail->quantity;
-            $product->save();
+    //         // mengembalikan stok produk 
+    //         $product = Product::findOrFail($OrderDetail->product_id);
+    //         $product->stock += $OrderDetail->quantity;
+    //         $product->save();
 
-            // hapus detail pesanan 
-            $OrderDetail->delete();
+    //         // hapus detail pesanan 
+    //         $OrderDetail->delete();
 
-            DB::commit();
+    //         DB::commit();
 
-            return new MasterResource(true, 'Berhasil menghapus detail pesanan', null);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
+    //         return new MasterResource(true, 'Berhasil menghapus detail pesanan', null);
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         return response()->json(['error' => $e->getMessage()], 500);
+    //     }
+    // }
 }

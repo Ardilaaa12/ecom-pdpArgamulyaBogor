@@ -83,8 +83,13 @@ class NavbarController extends Controller
     }
 
     public function destroy($id){
-        $data = Navbar::find($id);
-        $data->delete();
+        $navbar = Navbar::find($id);
+
+        if ($navbar->section()->exists()) {
+            return new MasterResource(false, 'navbar ini memiliki relasi dengan table section', null);
+        }
+
+        $navbar->delete();
         return new MasterResource(true, 'Navbar Berhasil Dihapus!', null);
     }
 }

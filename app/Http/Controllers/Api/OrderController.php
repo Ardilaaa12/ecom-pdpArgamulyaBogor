@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Order;
+use App\Models\orderDetail;
 use App\Models\Payment;
+use App\Models\Shipping;
 use App\Models\User;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\MasterResource;
@@ -81,8 +83,24 @@ class OrderController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $order = Order::find($id);
+        if (!$order) {
+            return new MasterResource(false, 'Data order tidak ditemukan', null);
+        }
+
+        if ($order->status != 'menunggu pembayaran') {
+            return new MasterResource(false, 'Pembayaran sudah dilakukan, data tidak bisa dihapus', null);
+        }
+
+        OrderDetail::where('order_id', $order->id)->delete();
+        Payment::where('order_id', $order->id)->delete();
+        Shipping::where('order_id', $order->id)->delete();
+
+        $order->delete();
+
+        return new MasterResource(true, 'Order beserta data terkait berhasil dihapus!', null);
     }
+
 
     public function monthlyData(Request $request)
     {

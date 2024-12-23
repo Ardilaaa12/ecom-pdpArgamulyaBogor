@@ -142,17 +142,4 @@ class PaymentController extends Controller
 
         return new MasterResource(true, 'Berhasil mengubah data payment', $payment);
     }
-
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id)
-    {
-        $payment = Payment::find($id);
-        Storage::delete('public/payment/' . basename($payment->payment_image));
-        $payment->delete();
-
-        return new MasterResource(true, 'data payment berhasil di hapus', null);
-    }
 }

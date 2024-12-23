@@ -21,14 +21,6 @@ class Order extends Model
         'check_by',
     ];
 
-    // public static function boot() {
-    //     parent::boot();
-
-    //     static::creating(function ($order){ 
-    //         $order->no_ref_order = 'REF-' . strtoupper(Str::random(3));
-    //     });
-    // }
-
     public function user() {
         return $this->belongsTo(User::class);
     }

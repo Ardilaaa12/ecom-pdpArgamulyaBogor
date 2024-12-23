@@ -69,6 +69,11 @@ class ShippingCostController extends Controller
     public function destroy($id)
     {
         $id = ShippingCost::find($id);
+
+        if ($id->shpping()->exists()) {
+            return new MasterResource(false, 'Data memiliki relasi dengan table shipping', null);
+        }
+        
         $id->delete();
 
         return new MasterResource(true, 'Biaya pengiriman dapat dihapus', null);

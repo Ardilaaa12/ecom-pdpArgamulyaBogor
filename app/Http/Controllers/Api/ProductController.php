@@ -151,8 +151,16 @@ class ProductController extends Controller
      */
     public function destroy(string $id)
     {
-        $product = Product::with(['category'])->find($id);
-        Storage::delete('public/product' . basename($product->photo_product));
+        $product = Product::find($id);
+
+        if ($product->orderDetail()->exists() || $product->review()->exists()) {
+            return new MasterResource(false, 'Data memiliki relasi di table Order atau Review');
+        }
+
+        likeItem::where('product_id', $product->id)->delete();
+        cartItem::where('product_id', $product->id)->delete();
+
+        Storage::delete('public/product/' . basename($product->photo_product));
         $product->delete();
 
         return new MasterResource(true, 'Data user berhasil dihapus', null);

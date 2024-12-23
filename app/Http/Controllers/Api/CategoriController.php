@@ -91,6 +91,11 @@ class CategoriController extends Controller
     public function destroy(string $id)
     {
         $category = Category::find($id);
+
+        if ($category->product()->exists()) {
+            return new MasterResource(false, 'Category memiliki relasi dengan table produk', null);
+        }
+
         // delete post
         $category->delete();
         return new MasterResource(true, 'Data berhasil dihapus', $category);

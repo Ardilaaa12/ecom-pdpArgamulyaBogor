@@ -21,6 +21,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\MasterResource;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class GlobalController extends Controller
 {
@@ -91,16 +92,25 @@ class GlobalController extends Controller
 
     public function exportSalesReport(Request $request)
     {
-        $startDate = $request->query('start_date');
-        $endDate = $request->query('end_date');
-
+        // Ambil tanggal dari session
+        $startDate = session('sales_report_start_date');
+        $endDate = session('sales_report_end_date');
+    
+        // Pastikan tanggal ada di session
+        if (!$startDate || !$endDate) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tanggal tidak ditemukan di session. Pastikan Anda telah menjalankan laporan sebelumnya.',
+            ], 400);
+        }
+    
         $orders = Order::whereBetween('created_at', [
             Carbon::parse($startDate)->startOfDay(),
-            Carbon::parse($endDate)->endOfDay()
+            Carbon::parse($endDate)->endOfDay(),
         ])->get();
-
-        return Excel::download(new SalesReportExport($orders),'sales_report_' . now()->format('Ymd_His') . '.xlsx');
-    }
+    
+        return Excel::download(new SalesReportExport($orders), 'sales_report_' . now()->format('Ymd_His') . '.xlsx');
+    }    
 
     public function exportSheepStockReport(Request $request)
     {
@@ -196,6 +206,17 @@ class GlobalController extends Controller
 
         $startDate = Carbon::parse($request->query('start_date'))->startOfDay();
         $endDate = Carbon::parse($request->query('end_date'))->endOfDay();
+
+        // Simpan tanggal ke dalam session
+        session([
+            'sales_report_start_date' => $startDate,
+            'sales_report_end_date' => $endDate,
+        ]);
+
+        Log::info('Session Data:', [
+            'start_date' => session('sales_report_start_date'),
+            'end_date' => session('sales_report_end_date')
+        ]);
 
         $orders = Order::join('users', 'orders.user_id', '=', 'users.id')
             ->select('orders.no_ref_order', 'orders.created_at', 'users.fullname', 'orders.total_amount', 'orders.status')

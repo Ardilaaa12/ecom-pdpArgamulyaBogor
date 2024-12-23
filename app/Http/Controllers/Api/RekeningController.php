@@ -107,6 +107,11 @@ class RekeningController extends Controller
     public function destroy($id)
     {
         $id = Rekening::find($id);
+
+        if ($id->rekening()->exists()) {
+            return new MasterResource(false, 'Data memiliki relasi dengan table Payment', null);
+        }
+        
         Storage::delete('public/rekening/'.basename($id->payment_master_image));
         $id->delete();
 

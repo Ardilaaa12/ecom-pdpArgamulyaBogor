@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Cart;
-use App\Models\Like;
 use App\Models\User;
+use App\Models\Cart;
+use App\Models\CartItem;
+use App\Models\Like;
+use App\Models\LikeItem;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
@@ -45,7 +47,7 @@ class UserController extends Controller
             'fullname' => 'required|string',
             'address' => 'required',
             'phone_number' => 'required|numeric',
-            'image' => 'required|image|mimes:jpeg,png,jpg,svg,gif|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,svg,gif|max:2048',
             'role' => 'required|in:admin,customer',
         ]);
 
@@ -68,6 +70,7 @@ class UserController extends Controller
             'phone_number' => $request->phone_number,
             'image' => '/storage/user/' . $imageName, // Tambahkan prefix ke nama file
             'role' => $request->role,
+            'is_verified' => 1,
         ]);
 
         if ($user->role === 'customer') {
@@ -189,11 +192,42 @@ class UserController extends Controller
     public function destroy(string $id)
     {
         $user = User::find($id);
-        // delete image
-        Storage::delete('public/user/' .basename($user->image));
-        // delete user
+        if (!$user) {
+            return new MasterResource(false, 'User tidak ditemukan', null);
+        }
+
+        // Cek relasi dengan tabel orders
+        if ($user->order()->exists() || $user->review()->exists()) {
+            return new MasterResource(false, 'Pengguna memiliki relasi dengan data order atau review', $user);
+        }
+
+        // Hapus data di tabel Cart dan CartItem
+        $carts = Cart::where('user_id', $user->id)->get();
+        foreach ($carts as $cart) {
+            // Hapus semua cart items yang terkait dengan cart
+            CartItem::where('cart_id', $cart->id)->delete();
+            // Hapus cart itu sendiri
+            $cart->delete();
+        }
+
+        // Hapus data di table Like dan LikeItem
+        $likes = Like::where('user_id', $user->id)->get();
+        foreach ($likes as $like) {
+            // Hapus semua cart items yang terkait dengan cart
+            LikeItem::where('like_id', $like->id)->delete();
+            // Hapus cart itu sendiri
+            $like->delete();
+        }
+
+        // Hapus gambar user
+        if ($user->image) {
+            Storage::delete('public/user/' . basename($user->image));
+        }
+
+        // Hapus user
         $user->delete();
 
-        return new MasterResource(true, 'Data user berhasil dihapus', null);
+        return new MasterResource(true, 'Data user berhasil dihapus beserta data terkait di tabel cart dan cart_item', null);
     }
+
 }

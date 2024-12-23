@@ -90,7 +90,13 @@ class LikeController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $userId = Auth::id();
+
+        $likes = Like::where('user_id', $userId)
+             ->with('likeItems') // Muat relasi like_items
+             ->get();
+
+        return new MasterResource(true, 'List like berhasil ditampilkan', $likes);
     }
 
     /**

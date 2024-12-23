@@ -24,7 +24,13 @@ class Section extends Model
         return asset($value); // Mengembalikan URL lengkap
     }
 
-    public function content() {
+    public function content() 
+    {
         return $this->hasMany(Content::class);
+    }
+
+    public function navbar()
+    {
+        return $this->belongsTo(Navbar::class);
     }
 }

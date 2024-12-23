@@ -116,6 +116,11 @@ class SectionController
     public function destroy($id)
     {
         $data = Section::find($id);
+
+        if ($data->content()->exists()) {
+            return new MasterResource(false, 'Data ini memiliki relasi dengan table Content', null);
+        }
+        
         Storage::delete('public/section/'.basename($data->media));
         $data->delete();
 

@@ -17,7 +17,8 @@ class Navbar extends Model
         'type',
     ];
 
-    public function section() {
-        return $this->belongsTo(Section::class);
+    public function section()
+    {
+        return $this->hasMany(Section::class);
     }
 }
