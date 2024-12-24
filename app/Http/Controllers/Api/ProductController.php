@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\likeItem;
+use App\Models\cartItem;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\MasterResource;
@@ -154,7 +156,7 @@ class ProductController extends Controller
         $product = Product::find($id);
 
         if ($product->orderDetail()->exists() || $product->review()->exists()) {
-            return new MasterResource(false, 'Data memiliki relasi di table Order atau Review');
+            return new MasterResource(false, 'Data memiliki relasi di table Order atau Review', null);
         }
 
         likeItem::where('product_id', $product->id)->delete();

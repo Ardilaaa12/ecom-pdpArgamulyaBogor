@@ -70,7 +70,7 @@ class ShippingCostController extends Controller
     {
         $id = ShippingCost::find($id);
 
-        if ($id->shpping()->exists()) {
+        if($id->shipping()->exists()) {
             return new MasterResource(false, 'Data memiliki relasi dengan table shipping', null);
         }
         

@@ -108,7 +108,7 @@ class RekeningController extends Controller
     {
         $id = Rekening::find($id);
 
-        if ($id->rekening()->exists()) {
+        if ($id->payments()->exists()) {
             return new MasterResource(false, 'Data memiliki relasi dengan table Payment', null);
         }
         
