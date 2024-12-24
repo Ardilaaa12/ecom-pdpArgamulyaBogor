@@ -24,6 +24,7 @@ class PaymentController extends Controller
         return response()->json($payments);
     }
 
+    // buat pdf struk
     public function generateInvoice($orderId)
     {
         // Mengambil data order beserta relasinya
@@ -101,14 +102,27 @@ class PaymentController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        $payment = Payment::find($id);
+        // Cari Order berdasarkan ID
+        $order = Order::find($id);
+        if (!$order) {
+            return response()->json(['message' => 'Order tidak ditemukan'], 404);
+        }
+
+        // Cari Payment berdasarkan order_id
+        $payment = Payment::where('order_id', $order->id)->first();
+        if (!$payment) {
+            return response()->json(['message' => 'Data payment tidak ditemukan untuk Order ini'], 404);
+        }
 
         if ($request->hasFile('payment_image')) {
             $paymentImage = $request->file('payment_image');
             $paymentImageName = $paymentImage->hashName();
             $paymentImage->storeAs('public/payment', $paymentImageName);
 
-            Storage::delete('public/payment/' . basename($payment->payment_image));
+            // Hapus gambar lama
+            if ($payment->payment_image) {
+                Storage::delete('public/payment/' . basename($payment->payment_image));
+            }
 
             $payment->update([
                 'payment_date' => $request->payment_date,
@@ -135,11 +149,9 @@ class PaymentController extends Controller
             $payment->update($data);
         }
 
-        $order = Order::find($payment->order_id);
-        if ($order) {
-            $order->update(['status' => 'verifikasi pembayaran']);
-        }
-
+        // Perbarui status Order
+        $order->update(['status' => 'verifikasi pembayaran']);
+        // Kembalikan respons berhasil
         return new MasterResource(true, 'Berhasil mengubah data payment', $payment);
     }
 }
