@@ -110,48 +110,61 @@ class PaymentController extends Controller
 
         // Cari Payment berdasarkan order_id
         $payment = Payment::where('order_id', $order->id)->first();
-        if (!$payment) {
-            return response()->json(['message' => 'Data payment tidak ditemukan untuk Order ini'], 404);
-        }
 
-        if ($request->hasFile('payment_image')) {
-            $paymentImage = $request->file('payment_image');
-            $paymentImageName = $paymentImage->hashName();
-            $paymentImage->storeAs('public/payment', $paymentImageName);
-
-            // Hapus gambar lama
-            if ($payment->payment_image) {
-                Storage::delete('public/payment/' . basename($payment->payment_image));
-            }
-
-            $payment->update([
+        // Jika payment_amount tidak null, buat data baru
+        if ($payment && $payment->payment_amount !== null) {
+            // Tambahkan data baru ke tabel Payment
+            $newPayment = new Payment([
+                'order_id' => $order->id,
                 'payment_date' => $request->payment_date,
                 'payment_amount' => $request->payment_amount,
-                'payment_image' => '/storage/payment/' . $paymentImageName,
+                'payment_image' => $request->file('payment_image')->storeAs(
+                    'public/payment',
+                    $request->file('payment_image')->hashName()
+                ),
                 'account_name' => $request->account_name,
+                'payment_master_id' => $payment ? $payment->payment_master_id : 0,
             ]);
+            $newPayment->save();
 
-            if ($request->filled('payment_master_id')) {
-                $payment->update(['payment_master_id' => $request->payment_master_id]);
-            }
+            // Perbarui status Order
+            $order->update(['status' => 'verifikasi pembayaran']);
 
-        } else {
-            $data = [
-                'payment_date' => $request->payment_date,
-                'payment_amount' => $request->payment_amount,
-                'account_name' => $request->account_name,
-            ];
-
-            if ($request->filled('payment_master_id')) {
-                $data['payment_master_id'] = $request->payment_master_id;
-            }
-
-            $payment->update($data);
+            return new MasterResource(true, 'Berhasil menambahkan data payment baru', $newPayment);
         }
 
+        // Jika payment_amount null atau data payment belum ada, update data
+        if ($payment) {
+            if ($request->hasFile('payment_image')) {
+                $paymentImage = $request->file('payment_image');
+                $paymentImageName = $paymentImage->hashName();
+                $paymentImage->storeAs('public/payment', $paymentImageName);
+
+                // Hapus gambar lama
+                if ($payment->payment_image) {
+                    Storage::delete('public/payment/' . basename($payment->payment_image));
+                }
+
+                $payment->update([
+                    'payment_date' => $request->payment_date,
+                    'payment_amount' => $request->payment_amount,
+                    'payment_image' => '/storage/payment/' . $paymentImageName,
+                    'account_name' => $request->account_name,
+                ]);
+
+            } else {
+                $data = [
+                    'payment_date' => $request->payment_date,
+                    'payment_amount' => $request->payment_amount,
+                    'account_name' => $request->account_name,
+                ];
+                $payment->update($data);
+            }
+        }
         // Perbarui status Order
         $order->update(['status' => 'verifikasi pembayaran']);
-        // Kembalikan respons berhasil
+
         return new MasterResource(true, 'Berhasil mengubah data payment', $payment);
     }
+
 }

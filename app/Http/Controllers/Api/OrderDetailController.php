@@ -223,25 +223,34 @@ class OrderDetailController extends Controller
 
     public function updateStatusBerhasil(string $id)
     {
-        // $user = Auth::user();
-        // $name = $user->fullname;
-
-        // Cari order berdasarkan kolom order_id di order_detail
+        // Cari order berdasarkan ID
         $order = Order::find($id);
         if (!$order) {
-            return response()->json(['error' => 'Order tidak ditemukan untuk order detail ini'], 404);
+            return response()->json(['error' => 'Order tidak ditemukan'], 404);
         }
 
-        // Update status order menjadi 'berhasil' dan set check_by dalam satu langkah
-        $order->update([
-            'status' => 'berhasil',  // Ubah status menjadi 'berhasil'
-            // 'check_by' => $name,
-        ]);
+        // Pastikan ada data payment untuk order_id yang sama
+        $payments = Payment::where('order_id', $order->id)->get();
+        if ($payments->isEmpty()) {
+            return response()->json(['error' => 'Data payment tidak ditemukan untuk order ini'], 404);
+        }
 
-        // Cek dan update status pengiriman jika ada data di tabel shipping
-        $shipping = Shipping::where('order_id', $order->id)->first();
-        if ($shipping) {
-            $shipping->update(['shipping_status' => 'disiapkan']);
+        // Hitung total payment_amount
+        $totalPaymentAmount = $payments->sum('payment_amount');
+
+        // Bandingkan total_amount dengan total payment_amount
+        if ($order->total_amount == $totalPaymentAmount) {
+            // Jika sama, update status menjadi 'berhasil'
+            $order->update(['status' => 'berhasil']);
+
+            // Cek dan update status pengiriman jika ada data di tabel shipping
+            $shipping = Shipping::where('order_id', $order->id)->first();
+            if ($shipping) {
+                $shipping->update(['shipping_status' => 'disiapkan']);
+            }
+        } else {
+            // Jika tidak sama, update status menjadi 'menunggu pembayaran'
+            $order->update(['status' => 'menunggu pembayaran']);
         }
 
         return response()->json([
@@ -249,8 +258,6 @@ class OrderDetailController extends Controller
             'status' => $order->status,
         ]);
     }
-
-
 
     public function updateStatusGagal(string $id)
     {

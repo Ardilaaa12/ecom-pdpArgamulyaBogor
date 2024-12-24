@@ -155,7 +155,7 @@ class OrderController extends Controller
 
     public function status()
     {
-        $order = Order::whereIn('status', ['verifikasi pengiriman', 'menunggu pembayaran', 'verifikasi pembayaran'])
+        $order = Order::whereIn('status', ['menunggu pembayaran', 'verifikasi pembayaran'])
                                     ->with(['user'])
                                     ->latest()
                                     ->get();
