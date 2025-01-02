@@ -29,17 +29,6 @@ class LikeController extends Controller
         return new MasterResource(true, 'List like berhasil ditampilkan', $likes);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         // Validasi input
@@ -85,26 +74,17 @@ class LikeController extends Controller
         return new MasterResource(true, 'Data berhasil ditambahkan kedalam Wishlist', $likeItem);
     }
 
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function show(string $id)
     {
-        //
-    }
+        $userId = Auth::id();
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+        $likes = Like::where('user_id', $userId)
+             ->with('likeItems') // Muat relasi like_items
+             ->get();
 
-    /**
-     * Remove the specified resource from storage.
-     */
+        return new MasterResource(true, 'List like berhasil ditampilkan', $likes);
+    }
+    
     public function destroy(string $id)
     {
         $likeItem = LikeItem::find($id);
