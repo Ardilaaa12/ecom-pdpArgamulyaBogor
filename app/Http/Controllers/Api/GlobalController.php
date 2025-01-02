@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\Shipping;
+use App\Models\ShippingCost;
 use App\Models\Payment;
 use App\Models\Rekening;
 use App\Models\Category;
@@ -84,6 +85,10 @@ class GlobalController extends Controller
                                     ->orWhere('route', 'LIKE', "%{$query}%")
                                     ->orWhere('type', 'LIKE', "%{$query}%")
                                     ->orWhere('status', $query)
+                                    ->get();
+                                    
+            $results['shippingCost'] = ShippingCost::where('city', 'LIKE', "%{$query}%")
+                                    ->orWhere('cost', 'LIKE', "%{$query}%")
                                     ->get();
         }
         return new MasterResource(true, 'Hasil data search', $results);
