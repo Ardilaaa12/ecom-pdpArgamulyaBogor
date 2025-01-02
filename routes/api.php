@@ -28,8 +28,9 @@ use App\Http\Controllers\Api\GlobalController;
 use App\Http\Controllers\Api\ShippingCostController;
 
 // fitur search
-Route::get('/shipping/status', [ShippingControllers::class, 'status']);
 Route::get('/search', [GlobalController::class, 'search']);
+
+Route::get('/shipping/status', [ShippingControllers::class, 'status']);
 
 // route function index, store, show, update, destroy
 Route::apiResource('/users', App\Http\Controllers\Api\UserController::class);
@@ -71,11 +72,13 @@ Route::put('/order/statusBerhasil/{id}', [OrderDetailController::class, 'updateS
 Route::put('/order/statusGagal/{id}', [OrderDetailController::class, 'updateStatusGagal']);
 
 // show laporan
+Route::get('/sales-report', [GlobalController::class, 'salesReport']);
 Route::get('/sheep-stock-report', [GlobalController::class, 'sheepStockReport']);
 Route::get('/payment-report', [GlobalController::class, 'paymentReport']);
 Route::get('/shipping-report', [GlobalController::class, 'shippingReport']);
 
 // export excel
+Route::get('/sales-report/export', [GlobalController::class, 'exportSalesReport']);
 Route::get('/sheep-stock-report/export', [GlobalController::class, 'exportSheepStockReport']);
 Route::get('/payment-report/export', [GlobalController::class, 'exportPaymentReport']);
 Route::get('/shipping-report/export', [GlobalController::class, 'exportShippingReport']);
@@ -93,7 +96,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/order/checkout', [OrderDetailController::class, 'store']);
     
     // data order pengguna login saja
-    Route::get('/order/see', [OrderDetailController::class, 'see']);
+    Route::get('/order/see', [OrderDetailController::class, 'getAuth']);
     
     //logout
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -111,6 +114,4 @@ Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
 
 
 Route::middleware('web')->group(function () {
-    Route::get('/sales-report', [GlobalController::class, 'salesReport']);
-    Route::get('/sales-report/export', [GlobalController::class, 'exportSalesReport']);
 });

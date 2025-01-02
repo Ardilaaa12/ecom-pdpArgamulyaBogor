@@ -17,26 +17,12 @@ use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index() 
     {
         $user = User::latest()->get();
         return new MasterResource(true, 'List user berhasil ditampilkan', $user);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         // Validasi input
@@ -87,12 +73,6 @@ class UserController extends Controller
         }
     } 
     
-
-    
-
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
         $user = User::find($id);
@@ -109,14 +89,6 @@ class UserController extends Controller
         } else {
             return response()->json(['message' => 'Unauthenticated'], 401);
         }
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
     }
 
     // Admin & Customer
@@ -183,12 +155,6 @@ class UserController extends Controller
         return new MasterResource(true, 'Data user berhasil diubah!', $user);
     }
 
-
-
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
         $user = User::find($id);

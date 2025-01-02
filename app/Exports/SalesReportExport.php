@@ -11,25 +11,14 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class SalesReportExport implements FromArray, WithHeadings, ShouldAutoSize, WithStyles
 {
-    public function __construct($orders)
+    public function __construct($data)
     {
-        $this->orders = $orders;
+        $this->data = $data;
     }
 
     public function array(): array
     {
-        $result = [];
-        foreach ($this->orders as $order) {
-            $result[] = [
-                'no_ref_order' => $order->no_ref_order,
-                'created_at'   => $order->created_at ? $order->created_at->format('d-M-y') : '-',
-                'user_name'    => $order->user ? $order->user->fullname : '-',
-                'total_amount' => $order->total_amount,
-                'status'       => $order->status,
-            ];
-        }
-
-        return $result;
+        return $this->data;
     }
 
     public function headings(): array

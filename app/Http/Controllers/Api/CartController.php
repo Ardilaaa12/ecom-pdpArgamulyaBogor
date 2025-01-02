@@ -84,8 +84,6 @@ class CartController extends Controller
             'total' => $total,
         ]);
     }
-    
-
 
     public function store(Request $request)
     {
@@ -168,25 +166,6 @@ class CartController extends Controller
         return new MasterResource(true, 'Data berhasil di tambahkan kedalam cart', $cartItem);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
         $validator = Validator::make($request->all(), [
@@ -207,9 +186,6 @@ class CartController extends Controller
         return $this->getTotal();
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
         $cartItem = CartItem::find($id);

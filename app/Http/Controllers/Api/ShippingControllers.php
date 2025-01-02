@@ -25,30 +25,6 @@ class ShippingControllers extends Controller
 
         return new MasterResource(true, 'List Data Order dengan Shipping', $data);
     }
-    
-
-
-    public function store(Request $request)
-    {
-        // validasi
-        $validator = Validator::make($request->all(), [
-            'order_id'          => 'required|exists:orders,id',
-            'shipping_address'  => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 442);
-        }
-
-        $data = Shipping::create([
-            'order_id'          => $request->order_id,
-            'shipping_date'     => Carbon::now('Asia/Jakarta')->format('Y-m-d H:i:s'),
-            'shipping_address'  => $request->shipping_address,
-            'shipping_status'   => 'Persiapan Transport',
-        ]);
-
-        return new MasterResource(true, 'Data Pengiriman berhasil ditambahkan', $data);
-    }
 
     public function show($id)
     {
@@ -109,23 +85,6 @@ class ShippingControllers extends Controller
         $shipping->update(['shipping_status' => 'sudah sampai']);
 
         return response()->json(['message' => 'Status shipping berhasil diperbarui', 'status' => $shipping->shipping_status]);
-    }
-
-    public function addShippingCost($id)
-    {
-        $validator = Validator::make($request->all(), [
-            'shipping_cost' => 'required|numeric',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
-        }
-
-        $data = Shipping::find($id);
-
-        // $data->update([
-        //     'shippinf_cost' => $request->shipping_cost;
-        // ])
     }
 
     public function destroy($id)

@@ -19,6 +19,18 @@ class OrderController extends Controller
     // admin 
     public function index()
     {
+        // $today = now()->startOfDay();
+
+        // $orders = Order::whereHas('shipping', function ($query) use ($today) {
+        //     $query->where('shipping_date', '<', $today);
+        // })
+        // ->where('status', '!=', 'berhasil')
+        // ->get();
+
+        // foreach ($orders as $order) {
+        //     $order->update(['status' => 'gagal']);
+        // }
+
         $user = User::whereHas('order', function ($query) {
             $query->where('status', 'verifikasi pembayaran');
         })
@@ -28,26 +40,6 @@ class OrderController extends Controller
         ->get();
 
         return new MasterResource(true, 'List data yang ada di order', $user);
-    }
-
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        $validator = $request->validate([
-            'user_id' => 'required|exists:users,id',
-            
-        ]);
     }
 
     // admin
@@ -62,25 +54,6 @@ class OrderController extends Controller
         }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
         $order = Order::find($id);

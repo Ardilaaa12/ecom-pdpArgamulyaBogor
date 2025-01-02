@@ -113,6 +113,7 @@ class SectionController
         // mengembalikan data
         return new MasterResource(true, 'Section Berhasil Diubah!', $data);
     }
+    
     public function destroy($id)
     {
         $data = Section::find($id);

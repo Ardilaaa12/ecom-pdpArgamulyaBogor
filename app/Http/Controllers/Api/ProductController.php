@@ -15,18 +15,12 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $product = Product::with(['category'])->where('stock', '>', 0)->get();
         return new MasterResource(true, 'List product berhasil ditampilkan', $product);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         \Log::info('input category_id:', $request->all());
@@ -79,18 +73,12 @@ class ProductController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
         $product = Product::with(['category'])->findOrFail($id);
         return new MasterResource(true, 'Detai data product', $product);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
         $product = Product::find($id);
@@ -148,9 +136,6 @@ class ProductController extends Controller
         return new MasterResource(true, 'Data product berhasil diubah', $product);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
         $product = Product::find($id);

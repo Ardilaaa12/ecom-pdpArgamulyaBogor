@@ -85,19 +85,6 @@ class LikeController extends Controller
         return new MasterResource(true, 'Data berhasil ditambahkan kedalam Wishlist', $likeItem);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        $userId = Auth::id();
-
-        $likes = Like::where('user_id', $userId)
-             ->with('likeItems') // Muat relasi like_items
-             ->get();
-
-        return new MasterResource(true, 'List like berhasil ditampilkan', $likes);
-    }
 
     /**
      * Show the form for editing the specified resource.

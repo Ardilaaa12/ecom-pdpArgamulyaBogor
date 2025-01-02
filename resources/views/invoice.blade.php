@@ -103,7 +103,7 @@
             <td></td>
             <td></td>
             <td><strong>Pembayaran</strong></td>
-            <td>: {{ $payment->rekening->payment_method }}</td>
+            <td>: {{ $payment->rekening->payment_method ?? '-'}}</td>
         </tr>
     </table>
     

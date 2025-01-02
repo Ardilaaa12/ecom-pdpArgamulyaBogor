@@ -46,10 +46,8 @@ class OrderDetailController extends Controller
         return new MasterResource(true, "List data yang ada di Order Detail", $orders);
     }
     
-    
-
     // role user (login sj)
-    public function see()
+    public function getAuth()
     {
         $order = Order::with(['orderDetail.product','user'])
             ->whereHas('user', function ($query) {
@@ -69,19 +67,6 @@ class OrderDetailController extends Controller
         return new MasterResource(true, "List data yang ada di Order Detail", $order);
 
     }
-    
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        // 
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
 
     public function generateRefOrder() {
         // mengambil id dari order terakhir
@@ -183,7 +168,7 @@ class OrderDetailController extends Controller
 
         Shipping::create([
             'order_id' => $order->id,
-            'shipping_cost_id' => $shippingCost->cost,
+            'shipping_cost_id' => $shippingCost->id,
             'shipping_date' => $shippingDate,
             'shipping_address' => $shippingAddress,
         ]);
@@ -302,28 +287,4 @@ class OrderDetailController extends Controller
             return response()->json(['message' => 'Order detail tidak ditemukan'], 404);
         }
     }
-    
-    // public function destroy(string $id)
-    // {
-    //     DB::beginTransaction();
-
-    //     try {
-    //         $OrderDetail = OrderDetail::findOrFail($id);
-
-    //         // mengembalikan stok produk 
-    //         $product = Product::findOrFail($OrderDetail->product_id);
-    //         $product->stock += $OrderDetail->quantity;
-    //         $product->save();
-
-    //         // hapus detail pesanan 
-    //         $OrderDetail->delete();
-
-    //         DB::commit();
-
-    //         return new MasterResource(true, 'Berhasil menghapus detail pesanan', null);
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
-    //         return response()->json(['error' => $e->getMessage()], 500);
-    //     }
-    // }
 }

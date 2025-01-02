@@ -86,30 +86,33 @@ class GlobalController extends Controller
                                     ->orWhere('status', $query)
                                     ->get();
         }
-
-        return response()->json($results);
+        return new MasterResource(true, 'Hasil data search', $results);
     }
 
     public function exportSalesReport(Request $request)
     {
-        // Ambil tanggal dari session
-        $startDate = session('sales_report_start_date');
-        $endDate = session('sales_report_end_date');
-    
-        // Pastikan tanggal ada di session
-        if (!$startDate || !$endDate) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Tanggal tidak ditemukan di session. Pastikan Anda telah menjalankan laporan sebelumnya.',
-            ], 400);
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+
+        $orders = Order::with('user')
+            ->whereBetween('created_at', [
+                Carbon::parse($startDate)->startOfDay(),
+                Carbon::parse($endDate)->endOfDay()
+            ])
+        ->get();
+
+        $data = [];
+        foreach ($orders as $order) {
+            $data[] = [
+                'no_ref_order'  => $order->no_ref_order,
+                'created_at'    => $order->created_at ? $order->created_at->format('d-M-y') : '-',
+                'user_name'     => $order->user ? $order->user->fullname : '-',
+                'total_amount'  => $order->total_amount,
+                'status'        => $order->status,
+            ];
         }
     
-        $orders = Order::whereBetween('created_at', [
-            Carbon::parse($startDate)->startOfDay(),
-            Carbon::parse($endDate)->endOfDay(),
-        ])->get();
-    
-        return Excel::download(new SalesReportExport($orders), 'sales_report_' . now()->format('Ymd_His') . '.xlsx');
+        return Excel::download(new SalesReportExport($data), 'sales_report_' . now()->format('Ymd_His') . '.xlsx');
     }    
 
     public function exportSheepStockReport(Request $request)
@@ -199,37 +202,33 @@ class GlobalController extends Controller
 
     public function SalesReport(Request $request)
     {
-        $request->validate([
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
-        ]);
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
 
-        $startDate = Carbon::parse($request->query('start_date'))->startOfDay();
-        $endDate = Carbon::parse($request->query('end_date'))->endOfDay();
+        $orders = Order::with('user')
+            ->whereBetween('created_at', [
+                Carbon::parse($startDate)->startOfDay(),
+                Carbon::parse($endDate)->endOfDay()
+            ])
+        ->get();
 
-        // Simpan tanggal ke dalam session
-        session([
-            'sales_report_start_date' => $startDate,
-            'sales_report_end_date' => $endDate,
-        ]);
-
-        Log::info('Session Data:', [
-            'start_date' => session('sales_report_start_date'),
-            'end_date' => session('sales_report_end_date')
-        ]);
-
-        $orders = Order::join('users', 'orders.user_id', '=', 'users.id')
-            ->select('orders.no_ref_order', 'orders.created_at', 'users.fullname', 'orders.total_amount', 'orders.status')
-            ->whereBetween('orders.created_at', [$startDate, $endDate])
-            ->get();
-
-        if ($orders->isEmpty()) {
-            return new MasterResource(false, "Tidak ada data ditemukan dalam rentang tanggal ini", []);
+        $data = [];
+        foreach ($orders as $order) {
+            $data[] = [
+                'no_ref_order'  => $order->no_ref_order,
+                'created_at'    => $order->created_at ? $order->created_at->format('d-M-y') : '-',
+                'user_name'     => $order->user ? $order->user->fullname : '-',
+                'total_amount'  => $order->total_amount,
+                'status'        => $order->status,
+            ];
         }
 
-        return new MasterResource(true, "List data yang ada di Order Detail", $orders);
+        return response()->json([
+            'success' => true,
+            'message' => 'Data penjualan',
+            'data'    => $data
+        ]);    
     }
-
 
     public function sheepStockReport(Request $request)
     {
@@ -273,10 +272,11 @@ class GlobalController extends Controller
         $endDate = $request->query('end_date');
 
         $payments = Payment::with('order', 'rekening')
-        ->whereBetween('created_at', [
-            Carbon::parse($startDate)->startOfDay(),
-            Carbon::parse($endDate)->endOfDay()
-        ])->get();
+            ->whereBetween('created_at', [
+                Carbon::parse($startDate)->startOfDay(),
+                Carbon::parse($endDate)->endOfDay()
+            ])
+        ->get();
 
         $data = [];
         foreach ($payments as $payment) {
