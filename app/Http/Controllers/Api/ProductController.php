@@ -12,6 +12,8 @@ use App\Http\Resources\MasterResource;
 use GuzzleHttp\Handler\Proxy;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
+
 
 class ProductController extends Controller
 {
@@ -81,30 +83,28 @@ class ProductController extends Controller
 
     public function update(Request $request, string $id)
     {
-        $product = Product::find($id);
-
         $validator = Validator::make($request->all(), [
             'category_id' => 'nullable|numeric',
-            'name_product' => 'nullable',
-            'age' => 'nullable',
-            'weight' => 'nullable',
-            'description' => 'nullable',
             'price' => 'nullable|numeric',
             'stock' => 'nullable|numeric',
             'health_status' => 'nullable|in:sehat,sakit',
             'photo_product' => 'nullable|image|mimes:jpeg,jpg,png,svg,gif|max:2048',
         ]);
-
+        
         if($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
+        $product = Product::find($id);
+        Log::info('Product ditemukan:', $product->toArray());
+
+
         if ($request->hasFile('photo_product')) {
-            // upload image 
             $photoProduct = $request->file('photo_product');
             $photoProductName = $photoProduct->hashName();
+        
+            // Upload image
             $photoProduct->storeAs('public/product', $photoProductName);
-
             // delete old image 
             Storage::delete('public/product/' . basename($product->photo_product));
             // upload product with new image 
@@ -114,7 +114,7 @@ class ProductController extends Controller
                 'age'           => $request->age ?? $product->age,
                 'weight'        => $request->weight ?? $product->weight,
                 'description'   => $request->description ?? $product->description,
-                'price'         => number_format($request->price) ?? $product->price,
+                'price'         => $request->price ?? $product->price,
                 'stock'         => $request->stock ?? $product->stock,
                 'health_status' => $request->health_status ?? $product->health_status,
                 'photo_product' => '/storage/product/' . $photoProductName,
@@ -127,7 +127,7 @@ class ProductController extends Controller
                 'age'           => $request->age ?? $product->age,
                 'weight'        => $request->weight ?? $product->weight,
                 'description'   => $request->description ?? $product->description,
-                'price'         => number_format($request->price) ?? $product->price,
+                'price'         => $request->price ?? $product->price,
                 'stock'         => $request->stock ?? $product->stock,
                 'health_status' => $request->health_status ?? $product->health_status,
             ]);

@@ -68,7 +68,7 @@ class RekeningController extends Controller
     {
         // validasi data yang diisi
         $validator = Validator::make($request->all(), [
-            'payment_method'    => 'required',
+            'payment_method'    => 'nullable',
         ]);
 
         // jika validasi gagal
@@ -90,7 +90,7 @@ class RekeningController extends Controller
             Storage::delete('public/rekening/'.basename($post->payment_master_image));
 
             $post->update([
-                'payment_method'        => $request->payment_method,
+                'payment_method'        => $request->payment_method ?? $post->payment_method,
                 'payment_master_image'  => '/storage/rekening/' . $rekeningImageName,
             ]);
         } else {

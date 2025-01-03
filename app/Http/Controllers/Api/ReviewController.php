@@ -68,9 +68,8 @@ class ReviewController extends Controller
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'product_id'    => 'required|exists:products,id',
-            'description'   => 'required',
-            'rate'          => 'required|integer|in:1,2,3,4,5',
+            'product_id'    => 'nullable|exists:products,id',
+            'rate'          => 'nullable|integer|in:1,2,3,4,5',
         ]);
 
         if ($validator->fails()) {
@@ -90,16 +89,16 @@ class ReviewController extends Controller
 
             // update data
             $data->update([
-                'product_id'    => $request->product_id,
+                'product_id'    => $request->product_id ?? $data->product_id,
                 'image'         => '/storage/review/' . $imageName,
-                'description'   => $request->description,
-                'rate'          => $request->rate,
+                'description'   => $request->description ?? $data->description,
+                'rate'          => $request->rate ?? $data->rate,
             ]);
         } else {
             $data->update([
-                'product_id'    => $request->product_id,
-                'description'   => $request->description,
-                'rate'          => $request->rate,
+                'product_id'    => $request->product_id ?? $data->product_id,
+                'description'   => $request->description ?? $data->description,
+                'rate'          => $request->rate ?? $data->rate,
             ]);
         }
 

@@ -51,7 +51,7 @@ class CategoriController extends Controller
 
         $category = Category::find($id);
         $category->update([
-            'name_category' => $request->name_category,
+            'name_category' => $request->name_category ?? $category->name_category,
         ]);
 
         return new MasterResource(true, 'Data category berhasil diubah', $category);

@@ -208,33 +208,29 @@ class OrderDetailController extends Controller
 
     public function updateStatusBerhasil(string $id)
     {
-        // Cari order berdasarkan ID
         $order = Order::find($id);
         if (!$order) {
             return response()->json(['error' => 'Order tidak ditemukan'], 404);
         }
 
-        // Pastikan ada data payment untuk order_id yang sama
         $payments = Payment::where('order_id', $order->id)->get();
         if ($payments->isEmpty()) {
             return response()->json(['error' => 'Data payment tidak ditemukan untuk order ini'], 404);
         }
 
-        // Hitung total payment_amount
         $totalPaymentAmount = $payments->sum('payment_amount');
 
-        // Bandingkan total_amount dengan total payment_amount
         if ($order->total_amount == $totalPaymentAmount) {
-            // Jika sama, update status menjadi 'berhasil'
-            $order->update(['status' => 'berhasil']);
+            $order->update([
+                'status' => 'berhasil',
+                // 'check_by' => auth()->user()->fullname,
+            ]);
 
-            // Cek dan update status pengiriman jika ada data di tabel shipping
             $shipping = Shipping::where('order_id', $order->id)->first();
             if ($shipping) {
                 $shipping->update(['shipping_status' => 'disiapkan']);
             }
         } else {
-            // Jika tidak sama, update status menjadi 'menunggu pembayaran'
             $order->update(['status' => 'menunggu pembayaran']);
         }
 

@@ -66,11 +66,9 @@ class SectionController
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'navbar_id'     => 'required|exists:navbars,id',
-            'title'         => 'required',
-            'description'   => 'required',
-            'status'        => 'required|in:active,nonActive',
-            'type'          => 'required',
+            'navbar_id'     => 'nullable|exists:navbars,id',
+            'status'        => 'nullable|in:active,nonActive',
+            'media'         => 'nullable|image|mimes:jpeg,png,jpg,svg,gif|max:2048',
         ]);
 
         //jika validasi gagal
@@ -92,21 +90,21 @@ class SectionController
             Storage::delete('public/section/'.basename($data->media));
 
             $data->update([
-                'navbar_id'         => $request->navbar_id,
-                'title'             => $request->title,
-                'description'       => $request->description,
+                'navbar_id'         => $request->navbar_id ?? $data->navbar_id,
+                'title'             => $request->title ?? $data->title,
+                'description'       => $request->description ?? $data->description,
                 'media'             => '/storage/section/' . $imageName,
-                'status'            => $request->status,
-                'type'              => $request->type,
+                'status'            => $request->status ?? $data->status,
+                'type'              => $request->type ?? $data->type,
 
             ]);
         } else {
             $data->update([
-                'navbar_id'     => $request->navbar_id,
-                'title'          => $request->title,
-                'description'    => $request->description,
-                'status'         => $request->status,
-                'type'           => $request->type,
+                'navbar_id'     => $request->navbar_id ?? $data->navbar_id,
+                'title'          => $request->title ?? $data->title,
+                'description'    => $request->description ?? $data->description,
+                'status'         => $request->status ?? $data->status,
+                'type'           => $request->type ?? $data->type,
             ]);
         }
 

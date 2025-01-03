@@ -8,6 +8,7 @@ use App\Http\Resources\MasterResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class ContentController extends Controller
 {
@@ -60,11 +61,9 @@ class ContentController extends Controller
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'section_id'    => 'required|exists:sections,id',
-            'title'         => 'required',
-            'description'   => 'required',
-            'status'        => 'required|in:active,nonActive',
-            'type'          => 'required',
+            'section_id'    => 'nullable|exists:sections,id',
+            'status'        => 'nullable|in:active,nonActive',
+            'media'         => 'nullable|image|mimes:jpeg,png,jpg,svg,gif|max:2048',
         ]);
 
         //jika validasi gagal
@@ -72,7 +71,7 @@ class ContentController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        // cari data yang sesuai
+        // Cari data yang sesuai
         $data = Content::find($id);
 
         // cek media diisi atau tidak
@@ -83,24 +82,26 @@ class ContentController extends Controller
             $image->storeAs('public/content', $imageName);
 
             // hapus media sebelumnya
-            Storage::delete('public/content/'.basename($data->media));
+            if ($data->media) {
+                Storage::delete('public/content/'.basename($data->media));
+            }
 
             $data->update([
-                'section_id'        => $request->section_id,
-                'title'             => $request->title,
-                'description'       => $request->description,
+                'section_id'        => $request->section_id ?? $data->section_id,
+                'title'             => $request->title ?? $data->title,
+                'description'       => $request->description ?? $data->description,
                 'media'             => '/storage/content/' . $imageName,
-                'status'            => $request->status,
-                'type'              => $request->type,
+                'status'            => $request->status ?? $data->status,
+                'type'              => $request->type ?? $data->type,
 
             ]);
         } else {
             $data->update([
-                'section_id'     => $request->section_id,
-                'title'          => $request->title,
-                'description'    => $request->description,
-                'status'         => $request->status,
-                'type'           => $request->type,
+                'section_id'     => $request->section_id ?? $data->section_id,
+                'title'          => $request->title ?? $data->title,
+                'description'    => $request->description ?? $data->description,
+                'status'         => $request->status ?? $data->status,
+                'type'           => $request->type ?? $data->type,
             ]);
         }
 

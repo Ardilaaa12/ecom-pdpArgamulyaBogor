@@ -86,17 +86,25 @@ class PaymentController extends Controller
         // Cari Payment berdasarkan order_id
         $payment = Payment::where('order_id', $order->id)->first();
 
+        // Periksa apakah payment_amount sudah sesuai dengan total_amount
+        $totalPaymentAmount = Payment::where('order_id', $order->id)->sum('payment_amount');
+        if ($totalPaymentAmount >= $order->total_amount) {
+            return response()->json(['message' => 'Pemesanan ini sudah lunas'], 200);
+        }
+    
         // Jika payment_amount tidak null, buat data baru
         if ($payment && $payment->payment_amount !== null) {
+
+            $paymentImage = $request->file('payment_image');
+            $paymentImageName = $paymentImage->hashName();
+            $paymentImage->storeAs('public/payment', $paymentImageName);
+
             // Tambahkan data baru ke tabel Payment
             $newPayment = new Payment([
                 'order_id' => $order->id,
                 'payment_date' => $request->payment_date,
                 'payment_amount' => $request->payment_amount,
-                'payment_image' => $request->file('payment_image')->storeAs(
-                    'public/payment',
-                    $request->file('payment_image')->hashName()
-                ),
+                'payment_image' => '/storage/payment/' . $paymentImageName,
                 'account_name' => $request->account_name,
                 'payment_master_id' => $payment ? $payment->payment_master_id : 0,
             ]);

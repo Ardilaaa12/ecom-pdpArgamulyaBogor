@@ -72,10 +72,10 @@ class NavbarController extends Controller
 
         // update
         $id->update([
-            'name'      => $request->name,
-            'route'     => $request->route,
-            'status'    => $request->status,
-            'type'      => $request->type,
+            'name'      => $request->name ?? $id->name,
+            'route'     => $request->route ?? $id->route,
+            'status'    => $request->status ?? $id->status,
+            'type'      => $request->type ?? $id->type,
         ]);
 
         // mengembalikan nilai
