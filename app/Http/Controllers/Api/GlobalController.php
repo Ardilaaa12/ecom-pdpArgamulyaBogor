@@ -122,15 +122,7 @@ class GlobalController extends Controller
 
     public function exportSheepStockReport(Request $request)
     {
-        $startDate = $request->query('start_date');
-        $endDate = $request->query('end_date');
-
-        $products = Product::with('category')
-        ->whereBetween('created_at', [
-            Carbon::parse($startDate)->startOfDay(),
-            Carbon::parse($endDate)->endOfDay()
-        ])
-        ->get();
+        $products = Product::with('category')->get();
 
         $data = [];
         foreach ($products as $product) {
@@ -238,15 +230,7 @@ class GlobalController extends Controller
 
     public function sheepStockReport(Request $request)
     {
-        $startDate = $request->query('start_date');
-        $endDate = $request->query('end_date');
-
-        $products = Product::with('category')
-            ->whereBetween('created_at', [
-                Carbon::parse($startDate)->startOfDay(),
-                Carbon::parse($endDate)->endOfDay()
-            ])
-        ->get();
+        $products = Product::with('category')->get();
 
         $data = [];
         foreach ($products as $product) {
@@ -313,6 +297,7 @@ class GlobalController extends Controller
         $endDate = $request->query('end_date');
 
         $shipping = Shipping::with('order.user')
+        ->whereIn('shipping_status', ['disiapkan', 'dalam perjalanan', 'sudah sampai'])
         ->whereBetween('created_at', [
             Carbon::parse($startDate)->startOfDay(),
             Carbon::parse($endDate)->endOfDay()
