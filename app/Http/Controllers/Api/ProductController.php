@@ -45,8 +45,29 @@ class ProductController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        $data = Category::where('name_category', $request->category_name)->first();
-    
+        $category = Category::where('name_category', $request->category_name)->first();
+        if (!$category) {
+            return response()->json(['error' => 'Kategori tidak ditemukan'], 404);
+        }
+
+        $existingProduct = Product::where([
+            ['name_product', $request->name_product],
+            ['category_id', $category->id],
+            ['age', $request->age],
+            ['weight', $request->weight],
+            ['description', $request->description],
+            ['price', $request->price],
+            ['health_status', $request->health_status ?? 'sehat'],
+        ])->first();
+
+        if ($existingProduct) {
+            // Jika produk sudah ada, tambahkan stok dari request ke stok yang ada di database
+            $existingProduct->stock += $request->stock;
+            $existingProduct->save();
+        
+            return new MasterResource(true, 'Stok produk diperbarui', $existingProduct);
+        }
+        
         // Simpan file gambar ke dalam folder 'public/product'
         $photoProduct = $request->file('photo_product');
         $photoProductName = $photoProduct->hashName(); // Generate nama file unik
@@ -54,7 +75,7 @@ class ProductController extends Controller
     
         // Simpan data produk ke database
         $product = Product::create([
-            'category_id' => $data->id,
+            'category_id' => $category->id,
             'name_product' => $request->name_product,
             'age' => $request->age ?? '-',
             'weight' => $request->weight ?? '-',

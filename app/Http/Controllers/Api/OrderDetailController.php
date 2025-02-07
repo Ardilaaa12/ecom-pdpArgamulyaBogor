@@ -274,7 +274,7 @@ class OrderDetailController extends Controller
     public function show(string $id)
     {
         // Mencari order berdasarkan ID
-        $orders = Order::with(['user', 'orderDetail.product', 'payment'])->find($id);
+        $orders = Order::with(['user', 'orderDetail.product', 'payment.rekening'])->find($id);
         
         // Memeriksa apakah order detail ditemukan
         if ($orders) {
