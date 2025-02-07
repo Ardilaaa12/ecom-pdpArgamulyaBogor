@@ -186,6 +186,7 @@ class GlobalController extends Controller
         $endDate = $request->query('end_date');
 
         $shipping = Shipping::with('order.user')
+        ->whereIn('shipping_status', ['disiapkan', 'dalam perjalanan', 'sudah sampai'])
         ->whereBetween('created_at', [
             Carbon::parse($startDate)->startOfDay(),
             Carbon::parse($endDate)->endOfDay()
